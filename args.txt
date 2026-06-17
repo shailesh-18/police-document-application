@@ -1,0 +1,136 @@
+Accused Details (આરોપી)
+acc_name : નામ (Name)
+acc_father : પિતાનું નામ (Father's Name)
+acc_surname : અટક (Surname)
+acc_alias : ઉર્ફે / ઉપનામ (Alias)
+acc_gender : લિંગ (Gender)
+acc_age : ઉંમર (Age)
+acc_dob : જન્મ તારીખ (DOB)
+acc_religion : ધર્મ (Religion)
+acc_caste : જાતિ (Caste)
+acc_subcaste : પેટાજાતિ (Subcaste)
+acc_nationality: રાષ્ટ્રીયતા (Nationality)
+acc_marital : વૈવાહિક સ્થિતિ (Marital Status)
+Occupation (વ્યવસાય)
+occ_type : ધંધો (Occupation Type)
+occ_place : ધંધાનું સ્થળ (Place of Work)
+occ_income : આવક (Income)
+Permanent Address (કાયમી સરનામું)
+perm_house : મકાન નં (House No)
+perm_area : વિસ્તાર (Area full address to be used in the form filling)
+perm_village : ગામ (Village)
+perm_taluka : તાલુકો (Taluka)
+perm_district : જીલ્લો (District)
+perm_state : રાજ્ય (State)
+perm_pin : પિનકોડ (Pincode)
+Current Address (હાલનું સરનામું)
+curr_address : હાલનું સરનામું (Full Current Address Line)
+curr_city : શહેર/ગામ (City/Village)
+curr_taluka : તાલુકો (Taluka)
+curr_district : જીલ્લો (District)
+curr_state : રાજ્ય (State)
+curr_pin : પિનકોડ (Pincode)
+Contact & ID (સંપર્ક)
+mobile_1 : મોબાઈલ ૧ (Primary Mobile)
+mobile_2 : મોબાઈલ ૨ (Alt Mobile)
+id_type : ઓળખ પત્ર પ્રકાર (ID Type e.g., Aadhar)
+id_number : ઓળખ પત્ર નંબર (ID Number)
+Physical Description (શારીરિક વર્ણન)
+phy_height : ઊંચાઈ (Height in cm)
+phy_build : બાંધો (Build e.g., Strong, Thin)
+phy_complexion : વર્ણ/રંગ (Complexion)
+phy_eyes : આંખોનો રંગ (Eye Color)
+phy_hair : વાળનો રંગ (Hair Color)
+phy_facial_hair: દાઢી/મૂછ (Beard/Mustache)
+Marks (નિશાન)
+mark_1 : નિશાન ૧ (Id Mark 1)
+mark_2 : નિશાન ૨ (Id Mark 2)
+old_wounds : જુના ઘા (Old Wounds)
+other_id_marks: અન્ય ઓળખ (Other Marks)
+Relative Intimation (સગાને જાણ)
+rel_name : સગાનું નામ (Relative Name)
+rel_relation : સંબંધ (Relation)
+rel_mobile : મોબાઈલ (Relative Mobile)
+rel_address : સરનામું (Relative Address)
+Case Details (કેસ વિગત)
+case_ps : પોલીસ સ્ટેશન (Police Station Name)
+case_district: જીલ્લો (Jurisdiction District)
+case_taluka : તાલુકો (Jurisdiction Taluka)
+crime_no : ગુન્હા રજી. નંબર (Crime Register No.)
+crime_type : ગુન્હા પ્રકાર (Crime Type Part I/II/III)
+crime_year : વર્ષ (Year)
+Offence (ગુન્હો)
+offence_desc : ગુન્હો / તહોમત (Offence Description)
+offence_section: લાગુ કલમ (Applicable Section - e.g., IPC 302)
+offence_place : ગુન્હાનું સ્થળ (Place of Offence)
+offence_date : ગુન્હો તારીખ (Date of Offence)
+offence_time : ગુન્હો સમય (Time of Offence)
+Arrest (અટકાયત)
+is_arrested : અટકાયત છે? (Is Arrested? Yes/No)
+arrest_date : અટકાયત તારીખ (Arrest Date)
+arrest_time : અટકાયત સમય (Arrest Time)
+arrest_place : અટકાયત સ્થળ (Place of Arrest)
+arrest_entry_no: સ્ટેશન ડાયરી એન્ટ્રી (Station Diary Entry No)
+Bail (જામીન)
+is_bailed : જામીન પર? (Is Bailed?)
+bail_authority : જામીન આપનાર (Bail Authority)
+bail_date : જામીન તારીખ (Bail Date)
+bail_time : જામીન સમય (Bail Time)
+bail_conditions: શરતો (Conditions)
+Officer & Remarks (અધિકારી)
+remarks : શેરો / નોંધ (Remarks)
+io_name : અમલદારનું નામ (Investigating Officer Name)
+io_designation: હોદ્દો (Designation)
+io_buckle : બકલ નં (Buckle No)
+io_police_station : પોલીસ સ્ટેશન (IO Police Station)
+Authentication (સહી)
+auth_date : દસ્તાવેજ તારીખ (Document Date)
+auth_place : સ્થળ (Place)
+auth_print_name: પ્રિન્ટ નામ (Name for Signature)
+
+panchnamu_time:પંચનામા નો ટાઇમ
+bail_person_name:જામીનનુ નામ
+complain_person:ફરીયાદીનુ નામ
+complain_person_work: નોકરી  પોલીસ સ્ટેશન 
+panch1_name:પંચ-૧
+panch2_name:પંચ-2
+pso_name:PSO નુ નામ
+court_place:કોર્ટ 
+panch_clerk:પંચનામુ કલાક  
+"ro_name", "ro_designation", "ro_buckle", "ro_police_station" 
+
+panchnumu_date,
+panchnamu_time
+comp_per_mobile,
+comp_per_address,
+panch1_surname,
+panch1_age,
+panch1_work,
+panch1_address,
+panch2_surname,
+panch2_age,
+panch2_work,
+panch2_address,
+
+new fields to add 
+
+ case_banv_date:ગુ.બ.તા.સ.
+ case_jann_date: ગુ.જા.તા.સ.
+
+case_banv_time
+case_jann_time
+કલાક-........... વાગે.
+કલાક-........... વાગે.
+
+new fileds to add for BNS 285:
+vehicle:વાહનનો નંબર ગાડી સાથે 
+vehicle_name:વાહનનુ નામ 
+vehicle_type:
+investigated_places:તપાસેલ જગ્યાઓ 
+investigated_date
+investigated_time
+pso_police_station
+case_diary
+arrest_entry_no
+
+investigated_end_time:તપાસ પુરી કર્યાનો સમય

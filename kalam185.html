@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Preview - Police Case Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #f5f5f5;
+            color: #333;
+            padding: 0;
+        }
+
+        .container {
+            max-width: none;
+            margin: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .controls {
+            background: #34495e;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #7f8c8d;
+        }
+
+        .btn-secondary:hover {
+            background: #636e72;
+        }
+
+        .btn-disabled {
+            background: #bdc3c7 !important;
+            cursor: not-allowed !important;
+            opacity: 0.6;
+        }
+
+        .btn-disabled:hover {
+            background: #bdc3c7 !important;
+        }
+
+        .edit-count-badge {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .preview-container {
+            padding: 20px;
+            background: #f8f9fa;
+            min-height: 600px;
+            overflow-x: auto;
+        }
+
+        .document-preview {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 30px;
+            font-family: 'Noto Sans Gujarati', 'Segoe UI', sans-serif;
+            line-height: 1.8;
+            min-height: 800px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .document-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .document-preview td {
+            border: 1px solid #000;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        .variable {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border: 1px dashed #ffc107;
+            font-weight: bold;
+            cursor: text;
+            transition: background-color 0.2s;
+        }
+
+        .variable:hover {
+            background-color: #ffe69c;
+        }
+
+        .variable:focus {
+            outline: 2px solid #ffc107;
+            background-color: #fff;
+        }
+
+        .page-break {
+            page-break-before: always;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 2px dashed #ddd;
+        }
+
+        .page-number {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background: #ecf0f1;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .floating-edit-btn {
+            position: fixed;
+            z-index: 10000;
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .floating-edit-btn:hover {
+            background: #229954;
+        }
+
+        .edit-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 10001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .edit-modal-overlay.show {
+            display: flex;
+        }
+
+        .edit-modal {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 10002;
+        }
+
+        .edit-modal h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .edit-modal textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            resize: none;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        .edit-modal textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .edit-modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .edit-modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .edit-modal-btn.save {
+            background: #27ae60;
+            color: white;
+        }
+
+        .edit-modal-btn.save:hover {
+            background: #229954;
+        }
+
+        .edit-modal-btn.cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .edit-modal-btn.cancel:hover {
+            background: #7f8c8d;
+        }
+
+        @media print {
+            @page {
+                margin: 0;
+            }
+
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            .header,
+            .controls,
+            .footer {
+                display: none;
+            }
+
+            .preview-container {
+                padding: 0;
+            }
+
+            .document-preview {
+                box-shadow: none;
+                border: none;
+            }
+
+            .page-number {
+                display: none;
+            }
+
+            .page-break {
+                margin-top: 0;
+                padding-top: 0;
+                border-top: none;
+            }
+
+            .variable {
+                background: none;
+                border: none;
+                padding: 0;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- <div class="header">
+            <h1>Police Case Document Preview</h1>
+            <p>Dynamic preview of the Gujarati police document with variables populated from localStorage</p>
+        </div> -->
+
+        <div class="controls">
+            <div>
+                <button class="btn" id="refreshBtn">Refresh Preview</button>
+                <button class="btn btn-secondary" id="printBtn">Print Document</button>
+                <button class="btn btn-secondary" id="undoBtn">↶ Undo</button>
+                <button class="btn btn-secondary" id="redoBtn">⤴ Redo</button>
+            </div>
+            <div>
+                <span style="color: white; font-size: 14px;">Variables are highlighted in <span
+                        style="background: #fff3cd; color: #333; padding: 2px 5px; border-radius: 3px;">yellow</span></span>
+            </div>
+        </div>
+
+        <div class="preview-container">
+            <div class="document-preview" id="documentPreview">
+                <!-- Document will be rendered here -->
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>This is a preview of the police document. All variables are populated from localStorage.</p>
+        </div>
+    </div>
+
+    <script>
+        // Variable mapping from localStorage keys to display names
+     const variableMap = {
+    // Accused Details
+    'acc_name': 'નામ',
+    'acc_father': 'પિતાનું નામ',
+    'acc_surname': 'અટક',
+    'acc_alias': 'ઉર્ફે / ઉપનામ',
+    'acc_gender': 'લિંગ',
+    'acc_age': 'ઉંમર',
+    'acc_dob': 'જન્મ તારીખ',
+    'acc_religion': 'ધર્મ',
+    'acc_caste': 'જાતિ',
+    'acc_subcaste': 'પેટાજાતિ',
+    'acc_nationality': 'રાષ્ટ્રીયતા',
+    'acc_marital': 'વૈવાહિક સ્થિતિ',
+
+    // Occupation
+    'occ_type': 'ધંધો',
+    'occ_place': 'ધંધાનું સ્થળ',
+    'occ_income': 'આવક',
+
+    // Permanent Address
+    'perm_house': 'મકાન નં',
+    'perm_area': 'વિસ્તાર',
+    'perm_village': 'ગામ',
+    'perm_taluka': 'તાલુકો',
+    'perm_district': 'જીલ્લો',
+    'perm_state': 'રાજ્ય',
+    'perm_pin': 'પિનકોડ',
+
+    // Current Address
+    'curr_address': 'હાલનું સરનામું',
+    'curr_city': 'શહેર/ગામ',
+    'curr_taluka': 'તાલુકો',
+    'curr_district': 'જીલ્લો',
+    'curr_state': 'રાજ્ય',
+    'curr_pin': 'પિનકોડ',
+
+    // Contact & ID
+    'mobile_1': 'મોબાઈલ ૧',
+    'mobile_2': 'મોબાઈલ ૨',
+    'id_type': 'ઓળખ પત્ર પ્રકાર',
+    'id_number': 'ઓળખ પત્ર નંબર',
+
+    // Physical Description
+    'phy_height': 'ઊંચાઈ',
+    'phy_build': 'બાંધો',
+    'phy_complexion': 'વર્ણ/રંગ',
+    'phy_eyes': 'આંખોનો રંગ',
+    'phy_hair': 'વાળનો રંગ',
+    'phy_facial_hair': 'દાઢી/મૂછ',
+
+    // Marks
+    'mark_1': 'નિશાન ૧',
+    'mark_2': 'નિશાન ૨',
+    'old_wounds': 'જુના ઘા',
+    'other_id_marks': 'અન્ય ઓળખ',
+
+    // Relative Intimation
+    'rel_name': 'સગાનું નામ',
+    'rel_relation': 'સંબંધ',
+    'rel_mobile': 'મોબાઈલ',
+    'rel_address': 'સરનામું',
+
+    // Case Details
+    'case_ps': 'પોલીસ સ્ટેશન',
+    'case_district': 'જીલ્લો',
+    'case_taluka': 'તાલુકો',
+    'crime_no': 'ગુન્હા રજી. નંબર',
+    'crime_type': 'ગુન્હા પ્રકાર',
+    'crime_year': 'વર્ષ',
+
+    // Offence
+    'offence_desc': 'ગુન્હો / તહોમત',
+    'offence_section': 'લાગુ કલમ',
+    'offence_place': 'ગુન્હાનું સ્થળ',
+    'offence_date': 'ગુન્હો તારીખ',
+    'offence_time': 'ગુન્હો સમય',
+
+    // Arrest
+    'is_arrested': 'અટકાયત છે?',
+    'arrest_date': 'અટકાયત તારીખ',
+    'arrest_time': 'અટકાયત સમય',
+    'arrest_place': 'અટકાયત સ્થળ',
+    'arrest_entry_no': 'સ્ટેશન ડાયરી એન્ટ્રી',
+
+    // Bail
+    'is_bailed': 'જામીન પર?',
+    'bail_authority': 'જામીન આપનાર',
+    'bail_date': 'જામીન તારીખ',
+    'bail_time': 'જામીન સમય',
+    'bail_conditions': 'શરતો',
+
+    // Officer & Remarks
+    'remarks': 'શેરો / નોંધ',
+    'io_name': 'અમલદારનું નામ',
+    'io_designation': 'હોદ્દો',
+    'io_buckle': 'બકલ નં',
+    'io_police_station': 'પોલીસ સ્ટેશન',
+
+    // Authentication
+    'auth_date': 'દસ્તાવેજ તારીખ',
+    'auth_place': 'સ્થળ',
+    'auth_print_name': 'પ્રિન્ટ નામ',
+
+    // Additional variables
+    'panchnamu_time': 'પંચનામા નો ટાઇમ',
+    'bail_person_name': 'જામીનનુ નામ',
+    'complain_person': 'ફરીયાદીનુ નામ',
+    'complain_person_work': 'નોકરી પોલીસ સ્ટેશન',
+    'comp_per_address': 'ફરીયાદીનુ સરનામું',
+    'comp_per_mobile': 'ફરીયાદીનુ મોબાઈલ',
+    'panch1_name': 'પંચ-૧',
+    'panch2_name': 'પંચ-૨',
+    'pso_name': 'PSO નુ નામ',
+    'court_place': 'કોર્ટ',
+    'panch_clerk': 'પંચનામુ કલાક',
+    'ro_name': 'RO નામ',
+    'ro_designation': 'RO હોદ્દો',
+    'ro_buckle': 'RO બકલ નં',
+    'ro_police_station': 'RO પોલીસ સ્ટેશન',
+
+    // Missing Panch fields
+    'panchnumu_date': 'પંચનામા ની તારીખ',
+    'panch1_surname': 'પંચ-૧ અટક',
+    'panch1_age': 'પંચ-૧ ઉંમર',
+    'panch1_work': 'પંચ-૧ કામ',
+    'panch1_address': 'પંચ-૧ સરનામું',
+    'panch2_surname': 'પંચ-૨ અટક',
+    'panch2_age': 'પંચ-૨ ઉંમર',
+    'panch2_work': 'પંચ-૨ કામ',
+    'panch2_address': 'પંચ-૨ સરનામું',
+
+    // Case timing fields
+    'case_banv_date': 'ગુ.બ.તા.સ.',
+    'case_jann_date': 'ગુ.જા.તા.સ.',
+    'case_banv_time': 'કલાક-........... વાગે.',
+    'case_jann_time': 'કલાક-........... વાગે.',
+
+    // BNS 285 fields
+    'vehicle': 'વાહનનો નંબર ગાડી સાથે',
+    'vehicle_name': 'વાહનનુ નામ',
+    'vehicle_type': 'વાહન પ્રકાર',
+    'investigated_places': 'તપાસેલ જગ્યાઓ',
+    'investigated_date': 'તપાસ તારીખ',
+    'investigated_time': 'તપાસ સમય',
+    'investigated_end_time': 'તપાસ પુરી કર્યાનો સમય',
+    'pso_police_station': 'PSO પોલીસ સ્ટેશન',
+    'case_diary': 'કેસ ડાયરી'
+};
+        // Date fields that need DD-MM-YYYY formatting
+        const DATE_FIELDS = [
+            'offence_date', 'arrest_date', 'bail_date', 'status_release_date',
+            'intimation_date', 'panchnumu_date', 'auth_date', 'acc_dob',
+            'case_banv_date', 'case_jann_date'
+        ];
+
+        // Function to format date from YYYY-MM-DD to DD-MM-YYYY
+        function formatDateDDMMYYYY(dateStr) {
+            if (!dateStr || typeof dateStr !== 'string') return dateStr;
+
+            // Check if it's in YYYY-MM-DD format
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                const parts = dateStr.split('-');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`; // DD-MM-YYYY
+            }
+
+            return dateStr;
+        }
+
+        // Function to get variable value from localStorage
+    function getVariableValue(key) {
+            const caseData = JSON.parse(localStorage.getItem('case_data') || '{}');
+            let value = caseData[key];
+
+            // Format date fields to DD-MM-YYYY
+            if (DATE_FIELDS.includes(key) && value) {
+                value = formatDateDDMMYYYY(value);
+            }
+
+            const displayValue = (value === null || value === '' || value === undefined)
+                ? `[${variableMap[key] || key}]`
+                : value;
+
+            // Store original rendered value in data-original-value so updateVariable
+            // knows exactly what text to target for occurrence-based replacement
+            return `<span class="variable" contenteditable="true" onblur="updateVariable('${key}', this.innerText, this)" data-key="${key}" data-original-value="${displayValue.replace(/"/g, '&quot;')}">${displayValue}</span>`;
+        }
+        
+        // Update variable in localStorage and notify parent
+        // function updateVariable(key, newValue) {
+        //     const caseData = JSON.parse(localStorage.getItem('case_data') || '{}');
+        //     caseData[key] = newValue;
+        //     localStorage.setItem('case_data', JSON.stringify(caseData));
+
+        //     // Notify parent window (documents.html) to update its form
+        //     if (window.parent !== window) {
+        //         window.parent.postMessage({ type: 'updateField', key: key, value: newValue }, '*');
+        //     }
+
+        //     // DO NOT re-render - keep the edited value as-is
+        // }
+// Update variable in localStorage and notify parent
+        function updateVariable(key, newValue, spanElement) {
+            const oldValue = spanElement ? (spanElement.dataset.originalValue || spanElement.dataset.key) : key;
+
+            // Compute which occurrence this specific span is among ALL spans with same key
+            let occurrenceIndex = 0;
+            if (spanElement) {
+                const allSpans = document.querySelectorAll(`#documentPreview span.variable[data-key="${key}"]`);
+                for (let i = 0; i < allSpans.length; i++) {
+                    if (allSpans[i] === spanElement) {
+                        occurrenceIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            // Get the original rendered value of this span (before editing)
+            const originalText = spanElement ? spanElement.dataset.originalValue : null;
+
+            if (originalText && newValue !== originalText) {
+                // Store as occurrence-based text edit (same as select→Edit flow)
+                const caseEdits = getCaseEditsForSection();
+                const existingIdx = caseEdits.findIndex(
+                    e => e.originalText === originalText && e.occurrenceIndex === occurrenceIndex
+                );
+                if (existingIdx >= 0) {
+                    caseEdits[existingIdx].newText = newValue;
+                } else {
+                    caseEdits.push({ originalText, newText: newValue, occurrenceIndex });
+                }
+                setCaseEditsForSection(caseEdits);
+
+                // Add to history
+                editHistoryManager.addEdit(originalText, newValue, occurrenceIndex);
+
+                // Notify parent with textEdit (occurrence-based)
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'textEdit',
+                        originalText: originalText,
+                        newText: newValue,
+                        occurrenceIndex: occurrenceIndex
+                    }, '*');
+                }
+            } else {
+                // No originalValue stored — fall back to global field update
+                const caseData = JSON.parse(localStorage.getItem('case_data') || '{}');
+                caseData[key] = newValue;
+                localStorage.setItem('case_data', JSON.stringify(caseData));
+
+                if (window.parent !== window) {
+                    window.parent.postMessage({ type: 'updateField', key: key, value: newValue }, '*');
+                }
+            }
+        }
+        // Function to render the document
+        function renderDocument() {
+            const preview = document.getElementById('documentPreview');
+
+            // Clear previous content
+            preview.innerHTML = '';
+
+            // Create the document HTML
+            // Add this to your renderDocument() function
+
+     let documentHTML = `
+   <div style="text-align: center; font-weight: bold; margin-bottom: 20px; font-size: 18px;text-decoration:underline">
+        સુચિપત્રક
+    </div>
+    
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <tr><td style="width: 5%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ૧
+            </td>
+            <td style="width: 30%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                પો.સ્ટે. ગુ.ર.નં.
+            </td>
+            <td style="width: 70%; border: 1px solid #000; padding: 8px;">
+                ${getVariableValue('io_police_station')} પો.સ્ટે. ગુ.ર.નં. ગુના 
+                ${getVariableValue('crime_no')} 
+                 ${getVariableValue('offence_section')} મુજબ
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 5%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ૨
+            </td>
+            <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ગુનો બ.તા.ટા.
+            </td>
+            <td style="border: 1px solid #000; padding: 8px;">
+                તા.-${getVariableValue('case_banv_date')} ના કલાક-${getVariableValue('case_banv_time')} વાગે.
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 5%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ૩
+            </td>
+            <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ગુનો જા.તા.ટા.-
+            </td>
+            <td style="border: 1px solid #000; padding: 8px;">
+                તા.-${getVariableValue('case_jann_date')} ના કલાક-${getVariableValue('case_jann_time')}વાગે.
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 5%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ૪
+            </td>
+            <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ગુના ની જગ્‍યા-
+            </td>
+            <td style="border: 1px solid #000; padding: 8px;">
+                ${getVariableValue('offence_place')}
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 5%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ૫
+            </td>
+            <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ફરીયાદી
+            </td>
+            <td style="border: 1px solid #000; padding: 8px;">
+                ${getVariableValue('complain_person')}
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 5%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ૬
+            </td>
+            <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ત્હોમતદાર 
+            </td>
+            <td style="border: 1px solid #000; padding: 8px;">
+                ${getVariableValue('acc_name')}
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 5%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ૭
+            </td>
+            <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">
+               ટુંક વિગત
+            </td>
+            <td style="border: 1px solid #000; padding: 8px;">
+                તે એવી રીતે કે આ કામના  તહોદાર ${getVariableValue('acc_name')} વાળો ગે.કા. વગર પાસ પરમીટે ડ્રાઇવીંગ લાયસન્સ વગર દારૂ(કેફી પીણુ) પીધેલ હાલતમાં પોતાના કબજા હેઠળ નું હીરો કંપનીનું સ્પ્લેન્ડર મો.સા જેનો રજી નં. ${getVariableValue('vehicle')}   નું હંકારી મળી આવી પકડાઇ જઇ ગુનો કર્યા વિ. બાબતે.
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 5%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ૮
+            </td>
+            <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">
+                દાખલ કરનાર અધિ.-
+            </td>
+            <td style="border: 1px solid #000; padding: 8px;">
+                 ${getVariableValue('pso_name')} ${getVariableValue('pso_police_station')}
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 5%; border: 1px solid #000; padding: 8px; font-weight: bold;">
+                ૯
+            </td>
+            <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">
+                તપાસ કરનાર અધિ.-
+            </td>
+            <td style="border: 1px solid #000; padding: 8px;">
+                ${getVariableValue('io_name')}
+            </td>
+        </tr>
+    </table>
+    
+    <div style="text-align: left; margin-top: 30px;">
+        પ્રિત,<br/>
+    </div>
+    
+    <div style="margin-top: 40px;">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        ${getVariableValue('io_name')} &nbsp; ${getVariableValue('io_police_station')} પો.સ્ટે. સદી જણાવવાનું કે ${getVariableValue('io_police_station')} પોલીસ સ્‍ટેશન ગુ.ર.નં.${getVariableValue('crime_no')}  ${getVariableValue('offence_section')} મુજબનો ગુનો 
+        આજરોજ ${getVariableValue('offence_date')} ના ક.${getVariableValue('arrest_time')} 
+        વાગે રજી. કરી આગળની તપાસ સારૂ ગુનો તમારી તરફ મોકલી આપેલ છે તો ગુનો સંભાળી લઇ આગળની તપાસ તજવીજ કરવા વિનંતી છે. 
+    </div>
+    
+    <div style="text-align: right; margin-top: 50px;">
+        (${getVariableValue('io_name')})<br/>
+        પોલીસ સ્ટેશન ઓફીસર<br/>
+        ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+    </div>
+    
+    <div class="page-break">
+        <div class="page-number">Page 2</div>
+        <div style="margin-top: 30px;">
+        <div style="text-align: center; font-weight: bold; margin-bottom: 20px;text-decoration:underline">
+            તા-${getVariableValue('auth_date')}
+        </div>
+        
+        
+        <div style="margin-bottom: 20px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            મારૂ નામ ${getVariableValue('complain_person')} નોકરી ${getVariableValue('complain_person_work')} પોલીસ સ્‍ટેશન રૂબરૂમાં મારી શ્રીસત ફરીયાદ હકિકત એવી છે કે આજરોજ અમો ${getVariableValue('io_name')} તથા ${getVariableValue('pso_name')} નોકરી ${getVariableValue('pso_police_station')}  પો.સ્ટે. એ રીતેના અમો ઇકબાલગઢ આઉટપોસ્ટ આગળ ઉભા હતા દરમ્યાન ${getVariableValue('offence_place')} ગામમાંથી એક મો.સા.ચાલક પોતાનું મો.સા. હાલક ડોલક હંકારી સામેથી આવતો હોઇ જે મો.સા.ને જે તે સ્થિતીમાં ઉભી રખાવી નજીકમાંથી બે પંચોના માણસો બોલાવી પંચો રૂબરૂ મો.સા. જોતાં  ${getVariableValue('vehicle')} નો નંબર લખેલ છે તેમજ સદરે મો.સા.ચાલકને નીચે ઉતારી તે ઇસમનું નામઠામ પુછતાં પોતે પોતાનું નામ તોતડાતી જીભે ${getVariableValue('acc_name')} વાળો હોવાનું જણાવેલ તેમજ સદરે ઇસમની આંખો જોતાં નશાથી ઘેરાયેલ લાલ જણાય છે સદરે ઇસમને હલાવી ચલાવી જોતાં પોતે પોતાની શરીરસ્થિતીનું ભાન રાખી શકતો નથી અને લથડીયા ખાતો અને બકવાસ કરતો હોઇ જેથી મજકુર ઇસમ પાસે દારૂ પીવા અંગે પાસ પરમીટ માંગતાં પોતાની પાસે નહી હોવાનું જણાવતો હોઇ સદરે  ${getVariableValue('vehicle')} નું ગણી તપાસ અર્થે કબજે કરેલ છે જે અંગેનું વિગતવારનુ પંચનામુ સાથેના ${getVariableValue('panchnamu_time')} સુધીનું કરી લીધેલ છે.
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            તો ઉપરોક્ત તહોદાર ${getVariableValue('acc_name')}  વાળો ગે.કા. વગર પાસ પરમીટે ડ્રાઇવીંગ લાયસન્સ વગર દારૂ(કેફી પીણુ) પીધેલ હાલતમાં પોતાના કબજા હેઠળ નું  ${getVariableValue('vehicle')} નું હંકારી મળી આવી પકડાઇ જઇ ગુનો કરેલ હોઇ મારી તેની વિરૂધ્‍ધ એમ.વી. એક્ટ કલમ-૧૮૫,૧૮૧(૩) તથા ધી પ્રોહી એક્ટ કલમ-૬૬(૧)બી મુજબ ધોરણસર તપાસ થવા ફરીયાદ છે. 
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            એટલી મારી ફરીયાદ હકીકત મારા લખાવ્‍યા મુજબની બરાબર અને ખરી છે. 
+        </div>
+
+        
+        
+        <div style="text-align: right; margin-top: 50px;">
+            રૂબરૂ<br>
+            (${getVariableValue('pso_name')})<br/>
+            પોલીસ સ્ટેશન ઓફીસર<br/>
+            ${getVariableValue('pso_police_station')} પોલીસ સ્ટેશન
+        </div>
+    </div>
+    <div class="page-break">
+        <div class="page-number">Page 3</div>
+        <div style="margin-top: 30px;">
+        <div style="text-align: center; font-weight: bold; margin-bottom: 20px; font-size: 18px;text-decoration:underline">
+            પંચનામુ
+        </div>
+        
+        <table style="width: 100%;margin-bottom: 20px;">
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; width: 10%; font-weight: bold;text-decoration:underline;">અ.નં.</td>
+                <td style="border: 1px solid #000; padding: 8px; width: 30%; font-weight: bold;text-decoration:underline;">નામ</td>
+                <td style="border: 1px solid #000; padding: 8px; width: 15%; font-weight: bold;text-decoration:underline;">જાતે</td>
+                <td style="border: 1px solid #000; padding: 8px; width: 15%; font-weight: bold;text-decoration:underline;">ઉ.વ.</td>
+                <td style="border: 1px solid #000; padding: 8px; width: 15%; font-weight: bold;text-decoration:underline;">ધંધો.</td>
+                <td style="border: 1px solid #000; padding: 8px; width: 15%; font-weight: bold;text-decoration:underline;">રહે.</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px;">૦૧.</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch1_name')}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch1_surname')}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch1_age')}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch1_work')}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch1_address')}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px;">૦૨.</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch2_name')}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch2_surname')}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch2_age')}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch2_work')}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch2_address')}</td>
+            </tr>
+        </table>
+        
+        <div style="margin-bottom: 15px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            	એ રીતેના અમો ઉપર લખેલા નામઠામવાળા પંચોને આજરોજ તમો   ${getVariableValue('io_police_station')} પોલીસના બોલાવવાથી મોજે ${getVariableValue('offence_place')} પોસ્ટ આગળ આવી હાજર થયા.
+        </div>
+        <div style="margin-bottom: 15px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            અત્રે વખતે તમો પોલીસે અમો પંચોને સમજ કરી કે, તમો પોલીસ પાસે એક મો.સા ચાલક નસાની હાલતમા પોતાનુ મો.સા સર્પાકારે હાલક ડોલક થતુ ચલાવી પકડાઇ ગયેલ ઉભેલ હોઇ તેનુ શરીર સ્થિતી અંગઝ્ડતી પંચનામુ કરવાનુ હોઇ અમોને પંચ રહેવા સમજ કરતા અમોએ પંચમાં રહેવા સ્વખુશી બતાવી જોઇ તપાસી લખાવીએ છીએ કે,
+            
+        </div>
+        <div style="margin-bottom: 15px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            અત્રે વખતે તમો પોલીસે પકડેલ મો.સાના ચાલકનુ અમો પંચો રૂબરૂ નામ ઠામ પુછતા  પોતે પોતાનુ નામ  ${getVariableValue('io_name')} વાળો હોવાનું જણાવેલ તેમજ સદરે ઇસમની આંખો જોતાં નશાથી ઘેરાયેલ લાલ જણાય છે સદરે ઇસમને હલાવી ચલાવી જોતાં પોતે પોતાની શરીરસ્થિતીનું ભાન રાખી શકતો નથી અને લથડીયા ખાતો અને બકવાસ કરતો હોઇ જેથી મજકુર ઇસમ પાસે દારૂ પીવા અંગે પાસ પરમીટ માંગતાં પોતાની પાસે નહી હોવાનું જણાવતો હોઇ  ${getVariableValue('vehicle')} નું ગણી તપાસ અર્થે કબજે કરેલ છે.સદરે ઇસમ પાસેથી બીજી કોઇ ચીજવસ્તુ કબ્જે કરવામા આવેલ નથી
+            
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            એ રીતેનુ પંચનામુ અમો પંચોના નજરે જોયા તપાસ્યા અને લખાવ્યા મુજબનુ બરાબર અને ખરૂ હોઇ જે વાંચી, સાંભળી, સમજી આપ સાહેબે લેપટોપમાં ટાઇપ કરી તેની પ્રિન્ટ કાઢી અમો પંચોને વાંચી સંભળાવી બતાવી આ નીચે અમારી સહીઓ કરેલ છે.  ${getVariableValue('vehicle')}
+ સુધીનું કરી લીધેલ.
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            રૂબરૂ
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <div style="width: 45%;">
+                (૧) .......................................................
+            </div>
+            <div style="width: 45%; text-align: right;">
+                (${getVariableValue('io_name')})
+            </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <div style="width: 45%;">
+                (૨) .......................................................
+            </div>
+            <div style="width: 45%; text-align: right;">
+            ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+            </div>
+        </div>
+        
+    </div>
+     <div class="page-number">Page 4</div>
+ <div style="margin-top: 30px;">
+        <div style="text-align: center; font-weight: bold; margin-bottom: 20px; font-size: 18px;text-decoration:underline">
+            અટકાયત મેમો
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            હું ${getVariableValue('acc_name')}
+            ઉ.વ ${getVariableValue('acc_age')} ધંધો ${getVariableValue('occ_type')} 
+            રહે-${getVariableValue('perm_area')} 
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+             હું ${getVariableValue('io_name')}  ${getVariableValue('io_police_station')}  પો.સ્ટે.  આથી તમારા ઉપર ${getVariableValue('io_police_station')}  પો.સ્ટે.પાર્ટ બી ગુ.ર.નં.${getVariableValue('crime_no')}  પ્રોહિ એક્ટ કલમ-${getVariableValue('offence_section')} ,એફ મુજબના ગુનાના કામે હું તમોને આજરોજ તા.${getVariableValue('offence_date')} ના કલાક-${getVariableValue('offence_time')} વાગે ${getVariableValue('offence_place')} મુકામે આ ગુનાના કામે અટક કરૂ છું. હાલમાં જોતા તમારા શરીરે કોઇ મારઝુડના કે બીજા કોઇ ઇજાના ચિન્હો જણાતા નથી. આ બાબતની જાણ તમારા સંબંધી ${getVariableValue('rel_name')} 	તા.${getVariableValue('rel_address')}  વાળાઓને રૂબરૂમાં જાણ કરવામાં આવેલ છે .તા.${getVariableValue('offence_date')}.
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            આરોપીની સહી-..................................................................................
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            આરોપીના સગા/સબંધીની સહી. –...............................................
+        </div>
+        
+        <div style="text-align: right; margin-top: 50px;">
+            ${getVariableValue('io_name')}<br>
+            ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+        </div>
+    </div>
+    <div class="page-break">
+        <div class="page-number">Page 5</div>
+        <div style="margin-top: 30px;">
+        <div style="text-align: center; font-weight: bold; margin-bottom: 20px; font-size: 18px;text-decoration:underline">
+            ખત
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+                હું ${getVariableValue('acc_name')}
+            ઉ.વ ${getVariableValue('acc_age')} ધંધો ${getVariableValue('occ_type')} 
+            રહે-${getVariableValue('perm_area')} 
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            જત આથી બંધાઇને લખી આપું છું કે મારા ઉપર ${getVariableValue('crime_no')}  ${getVariableValue('offence_section')} મુજબના કામના ગુન્હાનું તહોમત આવેલ હોય તે તહોમતનો જવાબ દેવા સારૂ આપ સાહેબ તથા નામદાર કોર્ટ જ્યારે જે તારીખે અને ટાઇમે અને જગ્યાએ મને બોલાવશે તે તારીખે સમયે અને જગ્યાએ હું અવશ્ય હાજર રહીશ જો તેમ કરવામાં કસુર કરૂ તો મારા કસુર બદલ નામદાર સરકારને ગુનેગારી પેટે રૂા.૫૦૦૦/- અંકે પાંચ હજાર પુરા ફરપાઇ કરીશ જે મને કબુલ મંજુર છે જે બદલ નીચે મારી સહી કરી આપેલ છે. તા ${getVariableValue('auth_date')}
+        </div>
+        
+        <div style="margin: 30px 0; text-align: left;">
+            ....................................................
+        </div>
+        
+        <div style="text-align: right; margin-bottom: 20px;">
+            રૂબરૂ
+        </div>
+        
+        <div style="text-align: right; margin-top: 30px;">
+            (${getVariableValue('io_name')}) <br>
+              ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+        </div>
+    </div>
+    
+    
+    <div style="margin-top: 30px;">
+        <div style="text-align: center; font-weight: bold; margin-bottom: 20px; font-size: 18px;text-decoration:underline">
+            જામીન ખત
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            મારૂ નામ  ${getVariableValue('bail_person_name')}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            જત આથી બંધાઇને લખી આપું છું કે, ${getVariableValue('acc_name')} વાળા ઇસમ ઉપર ${getVariableValue('io_police_station')} પોલીસ સ્‍ટેશન પાર્ટ સી ગુ.ર.નં. ${getVariableValue('crime_no')}  ${getVariableValue('offence_section')} મુજબના કામના ગુન્હાનું તહોમત આવેલ હોય તે તહોમતનો જવાબ દેવા સારૂ આપ સાહેબ તથા નામદાર કોર્ટ જ્યારે જે તારીખે અને ટાઇમે અને જગ્યાએ સદરેને બોલાવશે તે તારીખે સમયે અને જગ્યાએ હું સદરેને અવશ્ય હાજર રાખીશ જો તેમ કરવામાં કસુર કરૂ તો મારા કસુર બદલ નામદાર સરકારને ગુનેગારી પેટે રૂા.૫૦૦૦/- અંકે પાંચ હજાર પુરા ફરપાઇ કરીશ જે મને કબુલ મંજુર છે જે બદલ નીચે મારી સહી કરી આપેલ છે. તા.${getVariableValue('auth_date')}
+            
+        </div>
+        
+        <div style="margin: 30px 0; text-align: left;">
+            ....................................................
+        </div>
+        
+        <div style="text-align: right; margin-top: 30px;">
+            (${getVariableValue('io_name')}) <br>
+              ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+        </div>
+    </div>
+    <div class="page-break">
+        <div class="page-number">Page 6</div>
+
+<div style="margin-top: 30px;">
+        <div style="margin-bottom: 20px;">
+            <div style="font-weight: bold; margin-bottom: 10px;">
+                પ્રતિ,<br/>
+                મેડીકલ ઓફિસર સાહેબશ્રી<br/>
+                સી.એચ.સી. ${getVariableValue('io_police_station')}
+            </div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">
+                <span style="text-decoration:underline">વિષય</span>-તહોદારનું બ્લડ સેમ્પલ લઇ તથા સારવાર તપાસણી કરી સર્ટી આપવા બાબતે.
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                જયભારત સાથે ${getVariableValue('io_name')} નોકરી 
+                ${getVariableValue('io_police_station')} પોલીસ સ્ટેશનનાઓનો વિનંતી રીપોર્ટ કે,
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ઉપરોક્ત વિષય આધારે ${getVariableValue('io_police_station')} પો.સ્ટે. પાર્ટ સી ગુ.ર.ન. .${getVariableValue('crime_no')}  
+                ${getVariableValue('offence_section')} મુજબના તહોદાર ${getVariableValue('acc_name')} વાળાનું બ્લડ સેમ્પલ લઇ આલ્કોહોલ સર્ટી આપવા તેમજ સારવાર કરી સર્ટી આપવા વિ.છે તા.${getVariableValue('auth_date')}. 
+
+            </div>
+            
+            <div style="text-align: right;">
+                (${getVariableValue('pso_name')})<br/>
+                ${getVariableValue('pso_police_station')} પોલીસ સ્ટેશન
+            </div>
+        </div>
+        
+     
+        
+       
+<div style="margin-top: 30px;">
+        <div style="margin-bottom: 20px;">
+            <div style="font-weight: bold; margin-bottom: 10px;">
+                પ્રતિ,<br/>
+                મેડીકલ ઓફિસર સાહેબશ્રી<br/>
+                સી.એચ.સી. ${getVariableValue('io_police_station')}
+            </div>
+            
+            <div style="font-weight: bold; margin: 15px 0;">
+                <span style="text-decoration:underline">વિષય</span>- તહોદારનું બ્લડ સેમ્પલ લઇ તથા સારવાર તપાસણી કરી સર્ટી 		આપવા બાબતે.
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                જયભારત સાથે ${getVariableValue('io_name')} નોકરી 
+                ${getVariableValue('io_police_station')} પોલીસ સ્ટેશનનાઓનો વિનંતી રીપોર્ટ કે,
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ઉપરોક્ત વિષય આધારે ${getVariableValue('io_police_station')} પો.સ્ટે. પાર્ટ સી ગુ.ર.ન. .${getVariableValue('crime_no')}  
+                ${getVariableValue('offence_section')} મુજબના તહોદાર ${getVariableValue('acc_name')} વાળાનું બ્લડ સેમ્પલ લઇ આલ્કોહોલ સર્ટી આપવા તેમજ સારવાર કરી સર્ટી આપવા વિ.છે તા.${getVariableValue('auth_date')}. 
+
+            </div>
+            
+            <div style="text-align: right;">
+                (${getVariableValue('pso_name')})<br/>
+                ${getVariableValue('pso_police_station')} પોલીસ સ્ટેશન
+            </div>
+        </div>
+        
+     
+    <div class="page-break">
+        <div class="page-number">Page 7</div>
+          <div style="margin-top: 30px;">
+     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <div style="text-align: left; font-weight: bold; margin-bottom: 20px; font-size: 18px;text-decoration:underline">
+            ચાર્જશીટ અંગેનું સ્થળપ્રત:
+        </div>
+            <div style="text-align: right; margin-bottom: 30px;">
+            C.C NO……………….………<br/><br/>
+            તારીખ........................................
+        </div>
+        </div>    
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; width: 20%; font-weight: bold;">અનું.</td>
+                <td style="border: 1px solid #000; padding: 8px; width: 30%; font-weight: bold;">તારીખ</td>
+                <td style="border: 1px solid #000; padding: 8px; width: 50%;">તા. / /૨૦૨૬</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૧</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">તહોમત નંબર(ચાકા નંબર)</td>
+                <td style="border: 1px solid #000; padding: 8px;">નં. /૨૦૨૬ તા. / /૨૦૨૬</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૨</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">ગુના નંબર અને તારીખ</td>
+                <td style="border: 1px solid #000; padding: 8px;">
+                    ${getVariableValue('io_police_station')} પો.સ્ટે. પાર્ટ સી ગુ.ર.નં. .
+                    ${getVariableValue('crime_no')}  
+                    ${getVariableValue('offence_section')}
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૩</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">ફરીયાદી અથવા બાતમીદારનું નામ</td>
+                <td style="border: 1px solid #000; padding: 8px;">શ્રીસત્ ${getVariableValue('complain_person')}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૪</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">તહોમતદારનું નામ સરનામું તથા અટક કર્યા તારીખ ટાઇમ</td>
+                <td style="border: 1px solid #000; padding: 8px;">
+
+                    ${getVariableValue('acc_name')} વાળાને તા.${getVariableValue('offence_date')} 
+                    ના ક-${getVariableValue('offence_time')} વાગે ${getVariableValue('offence_place')} 
+                    મુકામે અટક કરી જામીનમુક્ત કરવામાં આવેલ છે.<br/><br/>
+                                    </td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">અ</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">પોલીસ કબ્જામાં મોકલેલ</td>
+                <td style="border: 1px solid #000; padding: 8px;"> --</td>
+            </tr>
+             <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">બ</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">જામીન ઉપર છોડેલ</td>
+                <td style="border: 1px solid #000; padding: 8px;"> --</td>
+            </tr>
+             <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">ક</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">ઇન્સાફનું કામ ચલાવવા માટે નહી મોકલેલ (નાસતા ફરતા આરોપી) </td>
+                <td style="border: 1px solid #000; padding: 8px;"> --</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૫</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">તહોમત (કલમ)</td>
+                <td style="border: 1px solid #000; padding: 8px;">ધી પ્રોહી એક્ટ ${getVariableValue('offence_section')} મુજબ</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૬</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">સાક્ષીઓના નામ સરનામા</td>
+                <td style="border: 1px solid #000; padding: 8px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 4px; width: 10%; text-align: center; font-weight: bold;">અ. નં.</td>
+                            <td style="border: 1px solid #000; padding: 4px; width: 40%; text-align: center; font-weight: bold;">નામ/સરનામું</td>
+                            <td style="border: 1px solid #000; padding: 4px; width: 50%; text-align: center; font-weight: bold;">જે પુરાવો આપવાનો છે તેનો પ્રકાર</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 4px; text-align: center;">(૧)</td>
+                            <td style="border: 1px solid #000; padding: 4px;">${getVariableValue('complain_person')}</td>
+                            <td style="border: 1px solid #000; padding: 4px;">ફરીયાદી</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 4px; text-align: center;">(૨)</td>
+                            <td style="border: 1px solid #000; padding: 4px;">${getVariableValue('panch1_name')}</td>
+                            <td style="border: 1px solid #000; padding: 4px;">પંચ-૧</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 4px; text-align: center;">(૩)</td>
+                            <td style="border: 1px solid #000; padding: 4px;">${getVariableValue('panch2_name')}</td>
+                            <td style="border: 1px solid #000; padding: 4px;">પંચ-૨</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 4px; text-align: center;">(૪)</td>
+                            <td style="border: 1px solid #000; padding: 4px;">સા. મેડીકલ ઓફીસર શ્રી અમીરગઢ સી.એચ.સી</td>
+                            <td style="border: 1px solid #000; padding: 4px;">સાહેદ</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 4px; text-align: center;">(૫)</td>
+                            <td style="border: 1px solid #000; padding: 4px;">${getVariableValue('pso_name')}</td>
+                            <td style="border: 1px solid #000; padding: 4px;">PSO</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 4px; text-align: center;">(૬)</td>
+                            <td style="border: 1px solid #000; padding: 4px;">${getVariableValue('io_name')}</td>
+                            <td style="border: 1px solid #000; padding: 4px;">ત.ક.અ.</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૭</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">મળેલ મુદ્દામાલ</td>
+                <td style="border: 1px solid #000; padding: 8px;">-</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૮</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">મોકલ્યા તારીખ અને સમય</td>
+                <td style="border: 1px solid #000; padding: 8px;">તા. / /૨૦૨૬ ક. / વાગે.</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૯</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">તપાસ કરનાર અમલદારની સહી</td>
+                <td style="border: 1px solid #000; padding: 8px;">
+                    ${getVariableValue('io_name')}<br/>
+                    ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">૧૦</td>
+                <td style="border: 1px solid #000; padding: 8px; font-weight: bold;">પો.સ્ટે. ઇન્ચાર્જની સહી</td>
+                <td style="border: 1px solid #000; padding: 8px;">
+                    પોલીસ ઇન્સપેક્ટર<br/>
+                    ${getVariableValue('io_police_station')} પો.સ્ટે.
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="page-break">
+        <div class="page-number">Page 8</div>
+        <div style="margin-top: 30px;">
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <div style=" font-weight: bold; margin-bottom: 20px; font-size: 18px;">
+                    </div>
+           <div style="text-align: center; font-weight: bold; margin-bottom: 20px; font-size: 18px;">
+            ચાર્જશીટ<br>
+            <span style="text-decoration:underline">આખરી અહેવાલ</span>
+<br>                (બા.ના.સુ.સં.ની કલમ ૧૯૩ હેઠળ)
+        </div>
+            <div style="text-align: right; margin-bottom: 30px;">
+            I.I.F.-V
+        </div>
+        </div> 
+
+        
+        
+        <div style="font-weight: bold; margin-bottom: 15px;">
+            પ્રતિ,<br/>
+            મે.જ્યુ.ક.કલાસ મે.જી.સાહેબની કોટ<br/>
+            મુ.${getVariableValue('io_police_station')}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <div style="margin-bottom: 5px;">
+                (૧) જીલ્લો- ${getVariableValue('case_district')} પોલીસ સ્ટેશન-${getVariableValue('io_police_station')} વર્ષ-૨૦૨૬
+            </div>
+            <div style="margin-bottom: 5px;">
+                (૨) પ્રથમ માહિતી અહેવાલ નંબર- ગુ.ર.નં.${getVariableValue('crime_no')}  તા-${getVariableValue('offence_date')}
+            </div>
+            <div style="margin-bottom: 5px;">
+                (૩) આખરી અહેવાલ/આરોપનામા ક્રમાંક-&nbsp;&nbsp;&nbsp; /૨૦૨૬ (૪) તારીખ- / /૨૦૨૬
+            </div>
+            <div style="margin-bottom: 5px;">
+                (૫) અધિનિયમ-${getVariableValue('offence_section')}
+            </div>
+            <div style="margin-bottom: 5px;">
+                (૬)જો બનાવ બન્યો નથી તેવા પ્રકારનો હોયતો ખોટો/હકિકતની ભુલ/પોલીસ અધીકાર 
+     બહારનો/દિવાની પ્રકારનો છે.(લાગુ ૫ડતુ હોય તેને (ખરી) નિશાની કરવી) 
+            </div>
+            <div style="margin-bottom: 5px;">
+                (૭)પુરક પ્રકારનો છે કે મુળ અહેવાલ/આરોપનામુ છે. (લાગુ ૫ડતુ હોય તેને (ખરી) નિશાની કરવી)   
+            </div>
+            <div style="margin-bottom: 5px;">
+                (૮) તપાસ કરનાર અધિકારીનુ નામ-(૧)${getVariableValue('io_name')} ${getVariableValue('io_police_station')} પો.સ્ટે
+            </div>
+            <div style="margin-bottom: 5px;">
+                (૯) (અ) ફરીયાદી/બાતમીદારનું નામ-${getVariableValue('complain_person')}
+            </div>
+            <div style="margin-bottom: 10px;">
+                (૧૦) તપાસ દરમીયાન મળેલ/કબજે કરેલ મિલ્કતો ચીજ વસ્તુઓ/દસ્તાવેજોની વિગત 
+        (જો જરૂર જણાય તો અલાયદી કાગળ તૈયાર કરી સામેલ કરવો)
+            </div>
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <tr>
+                <td style="border: 1px solid #000; padding: 6px; width: 10%; text-align: center; font-weight: bold;">અ.ન.</td>
+                <td style="border: 1px solid #000; padding: 6px; width: 25%; text-align: center; font-weight: bold;">મિલકતનું વણિન</td>
+                <td style="border: 1px solid #000; padding: 6px; width: 15%; text-align: center; font-weight: bold;">અંદાજીત કિંમત</td>
+                <td style="border: 1px solid #000; padding: 6px; width: 15%; text-align: center; font-weight: bold;">મુદામાલ પાવતી નંબર</td>
+                <td style="border: 1px solid #000; padding: 6px; width: 20%; text-align: center; font-weight: bold;">કોની પાસેથી/ કયાંથી કબજે કરી</td>
+                <td style="border: 1px solid #000; padding: 6px; width: 15%; text-align: center; font-weight: bold;">નિકાલ</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">૧</td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">૨</td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">૩</td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">૪</td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">૫</td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">૬</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;">-</td>
+                <td style="border: 1px solid #000; padding: 6px;"></td>
+                <td style="border: 1px solid #000; padding: 6px;"></td>
+                <td style="border: 1px solid #000; padding: 6px;"></td>
+                <td style="border: 1px solid #000; padding: 6px;"></td>
+                <td style="border: 1px solid #000; padding: 6px;"></td>
+            </tr>
+        </table>
+        
+        <div style="margin: 20px 0;">
+            <div style="font-weight: bold; margin-bottom: 10px;">
+                (૧૧) જો આરોપી વિરૂધ્ધ ચાર્જશીટ કરવામાં આવ્યુ હોય તો તેની વિગત
+	(દરેક આરોપી દીઠ અલાયદા ૫ત્રક ભરવા)
+            </div>
+            
+            <div style="margin-left: 30px;">
+                <div style="margin-bottom: 5px;text-align:center;text-decoration:underline;">
+                    કુલ આરોપીની સંખ્યા-[૧] <br>
+                    આરોપી નં-(૧)
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૧) નામ-${getVariableValue('acc_name')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ચકાસણી કરી............
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૨) પિતા/પતિ નામ-${getVariableValue('acc_father')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ચકાસણી કરી.............
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૩) જન્મ તારીખ-${getVariableValue('acc_dob')}
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૪) જાતિ-${getVariableValue('acc_caste')}
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૫) રાષ્ટ્રીયતા-${getVariableValue('acc_nationality')}
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૬) પાસપોટર્ નંબર- નીલ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;પાસપોટર્ જારી કર્યા તારીખ- નીલ
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૭) ધર્મ-${getVariableValue('acc_religion')}
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૮) અનુ.જાતી/અનુ.જનજાતિ છે કે કેમ.-
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૯) વ્યવસાય-${getVariableValue('occ_type')}
+                </div>
+                <div>
+                    (૧૦) સરનામુ-રહે-${getVariableValue('perm_area')} ચકાસણી કરી
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૧૧) કામ ચલાઉ ગુનેગારનો નંબર- 
+                </div>
+                <div style="margin-bottom: 5px;">
+  (૧૨) કાયમી ગુનેગારનો નંબર (જો હોય તો)
+                </div>
+                <div style="margin-bottom: 5px;">
+                   (૧૩) ધર૫કડ કર્યા તારીખ- ${getVariableValue('arrest_date')}  ${getVariableValue('arrest_time')}
+                </div>
+                <div style="margin-bottom: 5px;">
+         (૧૪) જામીન ઉપર મુક્ત કર્યા તારીખ- ${getVariableValue('bail_date')} &nbsp; ${getVariableValue('bail_time')}
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૧૫) કોર્ટમાં મોકલ્યા તારીખ–  ના
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૧૬) અધિનીયમ/કલમો- ${getVariableValue('offence_section')} 
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૧૭) જામીનદારના નામ (ઓળખપત્ર નંબર અને સરનામાઓ)-${getVariableValue('bail_person_name')} 
+	    
+                </div>
+                <div style="margin-bottom: 5px;">
+                     (૧૮) અગાઉ સજા થયેલ હોય તો કેશ નંબર સહીત સજાની વિગત- (વિગતો દર્શાવવી) 
+                </div>
+                <div style="margin-bottom: 5px;">
+                    (૧૯) કોર્ટમાં રજુ કર્યો/પોલીસે જામીન ઉપર છોડ્યો (લાગુ ૫ડે તેને ટીક માર્કની નિશાની કરવી). 
+                </div>
+               </div> 
+
+               <br>
+            <div style="margin-bottom: 5px;">
+                (૧૨) જો આરોપનામું ન ઘડવામાં આવ્યું હોય તેવા (નાસતા ફરતા) આરોપીઓની વિગત 
+	(દરેક નાસતા ફરતા વ્યકિત માટે અલગ પત્રક ભરવા) – નીલ
+            </div>
+               <div style="margin-bottom: 5px;">
+        (૧૩) જે સાક્ષી તપાસવાના છે. તેની વિગત-
+    </div>
+            <div style="margin: 20px 0;">
+  
+    
+     <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px; width: 10%; text-align: center; font-weight: bold;">અ.નં.</td>
+            <td style="border: 1px solid #000; padding: 8px; width: 60%; text-align: center; font-weight: bold;">નામ/સરનામું</td>
+            <td style="border: 1px solid #000; padding: 8px; width: 30%; text-align: center; font-weight: bold;">જે પુરાવો આપવાનો છે તેનો પ્રકાર</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px; text-align: center;">(૧)</td>
+            <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('complain_person')}</td>
+            <td style="border: 1px solid #000; padding: 8px;">ફરીયાદી</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px; text-align: center;">(૨)</td>
+            <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch1_name')}</td>
+            <td style="border: 1px solid #000; padding: 8px;">પંચ-૧</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px; text-align: center;">(૩)</td>
+            <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('panch2_name')}</td>
+            <td style="border: 1px solid #000; padding: 8px;">પંચ-૨</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px; text-align: center;">(૪)</td>
+            <td style="border: 1px solid #000; padding: 8px;">સા. મેડીકલ ઓફીસર શ્રી ${getVariableValue('io_police_station')} સી.એચ.સી</td>
+            <td style="border: 1px solid #000; padding: 8px;">સાહેદ</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px; text-align: center;">(૫)</td>
+            <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('pso_name')}</td>
+            <td style="border: 1px solid #000; padding: 8px;">PSO</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px; text-align: center;">(૬)</td>
+            <td style="border: 1px solid #000; padding: 8px;">${getVariableValue('io_name')}</td>
+            <td style="border: 1px solid #000; padding: 8px;">ત.ક.અ.</td>
+        </tr>
+    </table>
+    
+   
+    
+    <div style="margin: 15px 0;">
+        <div style="margin-bottom: 5px;">
+            (૧૪) જો પ્રથમ માહિતી અહેવાલ ખોટો જણાયેલ હોય તો ભારતીય ન્યાય સંહીતાની કલમ ૨૧૭,૨૪૮     	હેઠળ પગલાં લીધાં/સુચવેલ છે.
+        </div>
+        <div style="margin-bottom: 5px;">
+            (૧૫) પ્રયોગશાળામાં કરેલ પૃથકરણ અહેવાલ- કેમીકલ એનેલાઇઝર શ્રી FSL અમદાવાદ નાઓનું 						          સર્ટી આવેથી મોકલી આપવામાં આવશે. 
+        </div>
+         <div style="margin-bottom: 5px;">
+            (૧૬) કામની ટુંકી હકિકત-.(જરૂર જણાય ત્યાં વધારાના કાગળ ઉ૫ર હકિકત લખી સામેલ કરવી) 
+તે એવી રીતે કે આ કામના તહોદાર ${getVariableValue('acc_name')} વાળો  ગે.કા. વગર પાસ પરમીટે દારૂ(કેફી પીણુ) પીધેલ હાલતમાં મળી આવી પકડાઇ જઇ ગુનો કર્યા વિ. બાબતે. 
+
+        </div>
+         <div style="margin-bottom: 5px;">(૧૭) કેશના પોલીસ નિકાલની જાણ ફરિયાદીને કરેલ છે.- હા    તારીખ-    /   /૨૦૨૬
+        </div>
+         <div style="margin-bottom: 5px;">(૧૮) રવાના કર્યા તારીખ-.    /    /૨૦૨૬ 
+        </div>
+         <div style="margin-bottom: 5px;">(૧૯) બિડાણની સંખ્યા-
+        </div>
+         <div style="margin-bottom: 5px;">(૨૦) બિડાણની યાદી- પેટામાં સામેલ છે.
+        </div>
+
+    </div>
+</div>
+        </div>
+        <br>
+         <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <div style="width: 45%;">
+                પોલીસ‍ મથકના‍ હવાલાવાળા‍ <br>
+                અમલદારની‍ સહી‍ <br>
+                પોલીસ ઇન્સ્પેક્ટર  <br>
+                ${getVariableValue('io_police_station')} પો.સ્ટે. <br>
+            </div>
+            <div style="width: 45%; text-align: right;">
+                આરોપનામુ/આખરી અહેવાલ તૈયાર <br>
+                કરનાર ત.ક. અધિકારીની સહી <br>
+                નામ- ${getVariableValue('pso_name')}<br>
+                ${getVariableValue('pso_police_station')} પોલીસ સ્ટેશન
+            </div>
+        </div>
+    </div>
+    <div class="page-break">
+    <div class="page-number">Page 9</div>
+    
+    <div style="margin-top: 30px;">
+        <!-- Bilingual Title -->
+        <div  style="text-align: right; margin-bottom: 30px;">C.P.C. 22 e. & g.(Revised)
+            </div>
+        <div style="text-align: center; margin-bottom: 30px;text-decoration:underline">
+            <div style="font-weight: bold; font-size: 18px; margin-bottom: 5px;">
+                CASE DIARY &nbsp;&nbsp;&nbsp;
+                કેસ ડાયરી
+            </div>
+        </div>
+     
+        <!-- No. and Date -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: none;">
+            <tr style="border: none;text-align:right;">
+                <td style="width: 50%; padding: 8px; font-weight: bold; border: none;text-align:right">No.</td>
+                <td style="width: 50%; padding: 8px; font-weight: bold; border: none;text-align:left;">Date</td>
+            </tr>
+            <tr style="border: none;;">
+                <td style="padding: 8px; font-weight: bold; text-decoration: underline; border: none;text-align:right">
+                    નં.૦૧
+                </td>
+                <td style="padding: 8px; font-weight: bold; text-decoration: underline; border: none;text-align:left;">
+                    તા.૨૧/૦૪/૨૦૨૬
+                </td>
+            </tr>
+        </table>
+
+        <!-- PSO Information -->
+        <div style="margin-bottom: 25px;text-align:center">
+            PSO-${getVariableValue('pso_name')}
+            ${getVariableValue('pso_police_station')} પોલીસ સ્ટેશન
+        </div>
+
+        <!-- Case Details Table -->
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0; border: none;">
+            <tr style="border: none;">
+                <td style="padding: 8px; width: 40%; font-weight: bold; border: none;">
+                    1) તપાસ અધિકારી
+                </td>
+                <td style="padding: 8px; width: 60%; border: none;">
+                    :- શ્રી ${getVariableValue('io_name')}
+                    ${getVariableValue('io_designation')}
+                    બ.નં.${getVariableValue('io_buckle')}
+                    ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    2) પોલીસ સ્ટેશન
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- ${getVariableValue('case_ps')}
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    3) ડીસ્ટ્રીક્ટ
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- ${getVariableValue('case_district')}
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    4) ગુના રજીસ્ટર ઉપરનો નંબર અને કલમ
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- ${getVariableValue('io_police_station')}
+                    પો.સ્ટે. પાર્ટ-સી.ગુ.ર.નં.
+                    ${getVariableValue('crime_no')}
+                    ${getVariableValue('offence_section')} મુજબ.
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    5) ફરિયાદીનું નામ અને ઠેકાણું
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- ${getVariableValue('complain_person')}
+                    નોકરી ${getVariableValue('complain_person_work')}
+                    પોલીસ સ્ટેશન
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    6) તહોદારનું નામ અને ધરપકડ કર્યાની તારીખ તથા સમય    
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- ${getVariableValue('acc_name')}
+                    વાળાને ધરપકડ
+                    તા.${getVariableValue('arrest_date')}
+                    ટા.${getVariableValue('arrest_time')} વાગે
+                    ${getVariableValue('arrest_place')} મુકામે કરવામાં આવેલ છે
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    7) (ક) પોલીસ કબજામાં છે કે જામીન પર ?
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- હા- ${getVariableValue('bail_person_name')}
+                    વાળા રૂા.૫૦૦૦/- ના જામીન થતા જામીનમુક્ત કરેલ છે.
+                </td>
+            </tr>
+             <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(ખ) મેજીસ્ટ્રેટના કબજામાં મોકલ્યાની તારીખ અને સમય
+                </td>
+                <td style="padding: 8px; border: none;">
+                   ના
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    8) ગુનાનું સ્થળ
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- મોજે ${getVariableValue('offence_place')}
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    9) ગુનાની તારીખ અને સમય
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- તા.${getVariableValue('offence_date')}
+                    ટાઇમ ${getVariableValue('offence_time')} વાગે
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    10) ગુનો દાખલ કર્યાની તારીખ અને સમય
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- ${getVariableValue('auth_date')}
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    11) તપાસ માટે જે-જે જગ્યાની મુલાકાત લીધી હોય તે તારીખ અને સમય
+                </td>
+                <td style="padding: 8px; border: none;">:-</td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    12) તપાસેલ જગ્યાઓ
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- ${getVariableValue('offence_place')}
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2"
+                    style="padding: 8px; font-weight: bold; text-align: center;
+                           background: #f0f0f0; border: none;">
+                    MODUS – OPERANDI
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    13) ચોરાયેલ મિલકત
+                </td>
+                <td style="padding: 8px; border: none;">:- --</td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    14) હાથ ધરાયેલ મિલકત
+                </td>
+                <td style="padding: 8px; border: none;">:- --</td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    15) અધિકારીએ તપાસ શરૂ કર્યાનો અને પુરી કર્યાનો સમય :- 
+                </td>
+                <td style="padding: 8px; border: none;">
+                    તા./ /૨૦૨૬ ના ક-/ થી ક-/ સુધી
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    16) કેસ ડાયરીના નંબર અને તારીખ
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- કે.ડા.નં. તા./ /૨૦૨૬
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td style="padding: 8px; font-weight: bold; border: none;">
+                    17) છેલ્લી કેશ ડાયરીનાં નંબર અને તારીખ
+                </td>
+                <td style="padding: 8px; border: none;">
+                    :- કે.ડા.નં. તા./ /૨૦૨૬
+                </td>
+            </tr>
+
+            <tr style="border: none;">
+                <td colspan="2"style="padding: 8px; font-weight: bold; border: none;">
+                   18) 18)	ટૂંક વિગતઃ- તે એવી રીતે કે આ કામના તહોદાર ${getVariableValue('acc_name')}  જાતે.ડામોર ઉ.વ.૨૨ ધંધો મજુરી
+રહે.આંબાપાણી  તા.અમીરગઢ જી.બનાસકાંઠા વાળો ગે.કા. વગર પાસ પરમીટે ડ્રાઇવીંગ લાયસન્સ વગર દારૂ(કેફી પીણુ) પીધેલ હાલતમાં પોતાના કબજા હેઠળ નું હીરો HF ડીલેક્ષ કંપનીનું મો.સા જેનો રજી નં. GJ-08-CP-4731 નું હંકારી મળી આવી પકડાઇ જઇ ગુનો કર્યા વિ. બાબતે.
+                </td>
+            </tr>
+        </table>
+આજરોજ પીએસઓશ્રીએ ઉપરોક્ત ગુનો રજી. કરી આગળની તપાસ અમારા તરફ કરતાં ગુનાની તપાસ સંભાળી લઇ ફરીયાદીની ફરીયાદ વંચાણે લેતા નીચેની વિગતે છે 
+    </div>
+</div>
+
+     
+<div class="page-break">
+    <div class="page-number">Page 10</div>
+    
+    <div style="margin-top: 30px;">
+        <!-- Date Header -->
+        <div style="text-align: center; font-weight: bold; margin-bottom: 20px;text-decoration:underline">
+            તા.${getVariableValue('offence_date')}
+        </div>
+        
+        <!-- Complaint Narrative -->
+        <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 15px;">
+                મારૂ નામ ${getVariableValue('complain_person')} નોકરી  ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    રૂબરૂમાં મારી શ્રીસત ફરીયાદ હકિકત એવી છે કે આજરોજ અમો તથા અ.હેડ.કોન્સ.${getVariableValue('io_name')}   ${getVariableValue('io_police_station')} પો.સ્ટે. એ રીતેના અમો ${getVariableValue('offence_place')}  આઉટપોસ્ટ આગળ ઉભા હતા દરમ્યાન ${getVariableValue('offence_place')}  ગામમાંથી એક મો.સા.ચાલક પોતાનું મો.સા. હાલક ડોલક હંકારી સામેથી આવતો હોઇ જે મો.સા.ને જે તે સ્થિતીમાં ઉભી રખાવી નજીકમાંથી બે પંચોના માણસો બોલાવી પંચો રૂબરૂ મો.સા. જોતાં ${getVariableValue('vehicle_name')} કંપનીનું મો.સા હોય જેની આગળ પાછળ નંબર પ્‍લેટ જોતાં રજી નં.[vehicle] નો નંબર લખેલ છે તેમજ સદરે મો.સા.ચાલકને નીચે ઉતારી તે ઇસમનું નામઠામ પુછતાં પોતે પોતાનું નામ તોતડાતી જીભે ${getVariableValue('acc_name')} જાતે.${getVariableValue('acc_surname')} ઉ.વ.${getVariableValue('acc_age')} ધંધો.${getVariableValue('occ_type')} રહે.${getVariableValue('perm_area')} હોવાનું જણાવેલ તેમજ સદરે ઇસમની આંખો જોતાં નશાથી ઘેરાયેલ લાલ જણાય છે સદરે ઇસમને હલાવી ચલાવી જોતાં પોતે પોતાની શરીરસ્થિતીનું ભાન રાખી શકતો નથી અને લથડીયા ખાતો અને બકવાસ કરતો હોઇ જેથી મજકુર ઇસમ પાસે દારૂ પીવા અંગે પાસ પરમીટ માંગતાં પોતાની પાસે નહી હોવાનું જણાવતો હોઇ સદરે મો.સા. નં. ${getVariableValue('vehicle')} કિ.રૂ.૩૦,૦૦૦/- નું ગણી તપાસ અર્થે કબજે કરેલ છે જે અંગેનું વિગતવારનુ પંચનામુ સાથેના અ.હેડ.કોન્સ. નાઓએ ક-${getVariableValue('panchnamu_time')} સુધીનું કરી લીધેલ છે.
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                તો ઉપરોક્ત તહોદાર ${getVariableValue('acc_name')} જાતે.${getVariableValue('acc_surname')} ઉ.વ.${getVariableValue('acc_age')} ધંધો.${getVariableValue('occ_type')} રહે.${getVariableValue('perm_area')}  વાળો ગે.કા. વગર પાસ પરમીટે ડ્રાઇવીંગ લાયસન્સ વગર દારૂ(કેફી પીણુ) પીધેલ હાલતમાં પોતાના કબજા હેઠળ નું ${getVariableValue('vehicle_name')} કંપનીનું મો.સા જેનો રજી નં. ${getVariableValue('vehicle')} નું હંકારી મળી આવી પકડાઇ જઇ ગુનો કરેલ હોઇ મારી તેની વિરૂધ્‍ધ [offence_section] મુજબ ધોરણસર તપાસ થવા ફરીયાદ છે..વિગેરે મતલબે ની ફરીયાદ વંચાણે લઇ કામે સામેલ રાખી.
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                બાદ આ કામે પંચ-(૧) ${getVariableValue('panch1_name')} ${getVariableValue('panch1_surname')} ઉ.વ.${getVariableValue('panch1_age')} ધંધો.${getVariableValue('panch1_work')} રહે-${getVariableValue('panch1_address')} (૨) ${getVariableValue('panch2_name')} ${getVariableValue('panch2_surname')} ઉ.વ.${getVariableValue('panch2_age')} ધંધો.${getVariableValue('panch2_work')} રહે-${getVariableValue('panch2_address')} વાળાઓની રૂબરૂ તા.${getVariableValue('arrest_date')} ના ક-${getVariableValue('panchnamu_time')} સુધીનુ પંચનામુ ફરિયાદની વિગતે કરી લીધેલ હોય જે પંચનામુ વંચાણે લઇ કામે સામેલ રાખ્યુ.
+
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                બાદ આ કામે આરોપીનુ બ્લ્ડ સેમ્પલ લેવડાવા સારુ મેડીકલ ઓફીસર શ્રી સામુહીક આરોગ્ય કેન્દ્ર [io_police_station] યાદી તૈયાર કરી મોકલી આપવામાં આવી અને ઓ.સી.વંચાણે લઇ કામે સામેલ રાખવામાં આવી.                            
+<br>
+<br>
+બાદ આ કામના આરોપી ${getVariableValue('acc_name')} જાતે.${getVariableValue('acc_surname')} ઉ.વ.${getVariableValue('acc_age')} ધંધો.${getVariableValue('occ_type')} રહે.${getVariableValue('perm_area')} વાળાને તા.${getVariableValue('arrest_date')} ના ક.${getVariableValue('arrest_time')} વાગે ${getVariableValue('arrest_place')} મુકામે અટક કરેલ હોઇ જેના ચહેરાનિશાન પત્રક તથા અટકાયત મેમા ભરેલ હોઇ જે વંચાણે લઇ કામે સામેલ રાખેલ.
+<br><br>
+
+બાદ આ કામે કબજે કરેલ મુદ્દામાલ અંગે ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન જ.મુ.પા ${getVariableValue('crime_no')} તા.${getVariableValue('offence_date')} થી ફાડેલ જે પ્રત વંચાણે લઇ કેસ કાગળોમાં સામેલ રાખેલ.
+<br><br>
+
+બાદ આ કામના તહોદારોના ફોટા તથા ફીંગર લેવડાવવા સારૂ તજવીજ કરવામાં આવી.
+<br><br>
+
+બાદ આ કામના આરોપીઓને અટક કર્યા અંગેની નોંધ સ્ટે.ડા.માં તથા જરૂરી રેકર્ડ કરવા પી.એસ.ઓ.ને રીપોર્ટ પાઠવી તજવીજ કરવામાં આવી ત્યારબાદ આરોપીના જામીન-${getVariableValue('bail_person_name')} વાળા અત્રે હાજર હોઇ તેઓના આધારકાર્ડ તેમજ ઘરવેરા પાવતી રજુ કરતા હોઇ આરોપીને જામીનમુક્ત કરવામાં આવી. 
+
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+           બાદ આગળની તપાસ ચાર્જશીટ કરવા પર બાકી.
+           <br>
+           ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+     
+<div class="page-break">
+    <div class="page-number">Page 11</div>
+    
+    <div style="margin-top: 30px;">
+        <!-- Date Header -->
+        <div style="text-align: left; font-weight: bold; margin-bottom: 20px;">
+            કેડા નં.૦૨<br><br>
+તા.${getVariableValue('auth_date')} ક.${getVariableValue('offence_time')}
+        </div>
+        
+        <!-- Complaint Narrative -->
+        <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 15px;">
+                આજરોજ આ ગુનાની આગળની તપાસ હાથ ધરવામાં આવી અને આ કામે સદરહું ગુનાની તપાસ એકંદરે પુર્ણ થઇ ગયેલ હોઇ જેથી આરોપી-${getVariableValue('acc_name')} જાતે.${getVariableValue('acc_subcaste')} ઉ.વ.${getVariableValue('acc_age')}  ધંધો.${getVariableValue('occ_type')} રહે.${getVariableValue('perm_area')}  વાળા વિરૂધ્‍ધમાં ${getVariableValue('offence_section')} મુજબ ચાર્જશીટ કરવા પુરતા પુરાવા પડતા હોઇ ચાર્જશીટ તૈયાર કરી નામ.કોર્ટને તથા આરોપીઓને અદા કરવાની જરૂરી ઝેરોક્ષ નકલો સાથે ${getVariableValue('court_place')}  કોર્ટમાં મોકલી આપવા તજવીજ કરવામાં આવી અને કેશનું પોશીક્યુશન થવા સારૂ અસલ કેશ કાગળો એ.પી.પી.શ્રી ${getVariableValue('court_place')}  કોર્ટ તરફ મોકલી આપવા તજવીજ કરવામાં આવી. અને અસલ કેશ કાયરી પો.સ્‍ટે. ક્રાઇમ રાઇટરશ્રીને સોપવામાં આવી.
+
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+           સબબ કેશ કોર્ટમાં ચાલી ગયેથી આખર પરીણામ સમરી આવવા ઉપર બાકી તપાસ જારી.
+            </div>
+    </div>
+</div>
+
+
+<div class="page-break">
+    <div class="page-number">Page 12</div>
+    
+    <div style="margin-top: 30px;">
+        <!-- Main Title -->
+        <div style="text-align: center; font-weight: bold; margin-bottom: 30px; font-size: 18px;text-decoration:underline">
+            Check list for case Registration
+        </div>
+        
+        <!-- Sub Title -->
+        <div style="text-align: center; font-weight: bold; margin-bottom: 40px; font-size: 16px;">
+            Central filing system
+        </div>
+        
+        <!-- First Complex Table -->
+        <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; border: 1.5px solid #000;">
+    <tr>
+        <td style="border: 1px solid #000; padding: 12px; width: 45%; text-align: center; font-size: 14px;">
+            Name of court where case is allocated:
+        </td>
+        <td style="border: 1px solid #000; padding: 12px; width: 55%;">
+            </td>
+    </tr>
+
+    <tr>
+        <td style="border: 1px solid #000; padding: 12px; text-align: center; font-size: 14px;">
+            Case Registration No. with Case type:
+        </td>
+        <td style="border: 1px solid #000; padding: 12px; font-size: 16px;">
+            ${getVariableValue('io_police_station')} પો.સ્ટે. ${getVariableValue('crime_no')}<br>
+            ${getVariableValue('offence_section')} મુજબ
+        </td>
+    </tr>
+
+    <tr>
+        <td style="border: 1px solid #000; padding: 12px; text-align: center; font-size: 14px;">
+            Data Entry Made in Cental Filing System:<br><br>
+            (Please √ if entry Made & Date)
+        </td>
+        <td style="border: 1px solid #000; padding: 0;">
+            <table style="width: 100%; border-collapse: collapse; height: 100px;">
+                <tr>
+                    <td style="border-right: 1px solid #000; width: 25%;"></td>
+                    <td style="padding-left: 10px; vertical-align: middle; width: 75%; font-size: 14px;">
+                        Date- તા-${getVariableValue('auth_date')}
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+        
+        <!-- Second Table - Complainant Section -->
+        <div style="font-weight: bold; margin-bottom: 10px;">
+            The following to be filled by Learned Advocate
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <div style="margin-bottom: 10px;">
+                Date:-............................................ (ફરીયાદી)
+            </div>
+            
+           <table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+    <tr>
+        <td style="border: 1px solid #000; padding: 10px; text-align: left;">
+            (complainant/Applicant/Aappellant/plaintll/accused/opponent/Respondent/Defendant) (please)
+        </td>
+    </tr>
+    
+    <tr>
+        <td style="border: 1px solid #000; padding: 10px; height: 40px; vertical-align: top;">
+            Party full name with Age: શ્રીસત્ ${getVariableValue('complain_person')}
+        </td>
+    </tr>
+    
+    <tr>
+        <td style="border: 1px solid #000; padding: 10px; height: 30px;">
+            &nbsp;
+        </td>
+    </tr>
+    
+    <tr>
+        <td style="border: 1px solid #000; padding: 10px; height: 40px; vertical-align: top;">
+            Name of advocate (એ.પી.પી.)
+        </td>
+    </tr>
+</table>
+        </div>
+        
+        <!-- Third Table - Accused Section -->
+        <div style="font-weight: bold; margin-bottom: 10px;">
+            The following to be filled by Learned Advocate
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <div style="margin-bottom: 10px;">
+                (આરોપી)
+            </div>
+            
+        <table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+    <tr>
+        <td style="border: 1px solid #000; padding: 10px; text-align: left;">
+            (complainant/Applicant/Aappellant/plaintll/accused/opponent/Respondent/Defendant) (please)
+        </td>
+    </tr>
+    
+    <tr>
+        <td style="border: 1px solid #000; padding: 10px; height: 50px; vertical-align: top;">
+            Party full name with Age &nbsp;&nbsp;&nbsp; ${getVariableValue('acc_name')}
+        </td>
+    </tr>
+    
+    <tr>
+        <td style="border: 1px solid #000; padding: 10px; height: 30px;">
+            &nbsp;
+        </td>
+    </tr>
+    
+    <tr>
+        <td style="border: 1px solid #000; padding: 10px; height: 40px; vertical-align: top;">
+            Name of advocate
+        </td>
+    </tr>
+</table>
+        </div>
+        
+        <!-- Bottom Section -->
+        <div style="margin-top: 40px;">
+            <table style="border:none;width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="border:none; padding: 8px; width: 25%; font-weight: bold; text-align: center;">
+                        Checked by Registrar
+                    </td>
+                    <td style="border:none; padding: 8px; width: 25%; font-weight: bold; text-align: center;">
+                        Entry Made
+                    </td>
+                    <td style="border:none; padding: 8px; width: 25%; font-weight: bold; text-align: center;">
+                        Verified
+                    </td>
+                    <td style="border:none; padding: 8px; width: 25%; font-weight: bold; text-align: center;">
+                        Allocate to
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border:none; padding: 8px; text-align: center;">
+                        Name@<br/>
+                        signature
+                    </td>
+                    <td style="border:none; padding: 8px; text-align: center;">
+                        Name@<br/>
+                        signature
+                    </td>
+                    <td style="border:none; padding: 8px; text-align: center;">
+                        Signature of Judge<br/>
+                        With date
+                    </td>
+                    <td style="border:none; padding: 8px; text-align: center;">
+                        With date
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+    <div class="page-break">
+        <div class="page-number">Page 13</div>
+        <br>
+    <div style="text-align: center; font-family: 'Arial Unicode MS', sans-serif; font-size: 14px; margin-bottom: 10px;">
+           ચહેરા નિશાન પત્રક <br>
+    મોજે- ${getVariableValue('io_police_station')} તા.- ${getVariableValue('io_police_station')} જીલ્લો- ${getVariableValue('case_district')} પોલીસ થાણાનાં અધિકારીની હદમાં પકડેલા ઇસમનુ ચહેરાનિશાન પત્રક
+</div>
+
+<table style="width: 100%; border-collapse: collapse; font-family: 'Arial Unicode MS', sans-serif; font-size: 12px; border: 1px solid #000;">
+    <tr style="text-align: center; font-weight: bold;">
+        <td style="border: 1px solid #000; padding: 5px; width: 3%;">અ<br>નં</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 8%;">ગુન્હા રજી.<br><br>નંબર</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 10%;">પકડેલ ઇસમનું પુરૂ નામ,  સરનામું તથા અટક</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 10%;">રહેવાસી પુરૂ સરનામું</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 8%;">જાતી અને<br>ધંધો</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 8%;">ગુન્હો<br>તહોમ<br>ત</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 10%;">શરીર પરની નિશાનીઓ તથા ઉંમર વર્ષ</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 8%;">અટક કે, જામીન મુકત</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 8%;">ગુનો સાબિત કે, ના સાબિત કે, છોડી મુક્યો</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 12%;">આરોપીઓના સગા<br>આરોપીના સગા સબંધીનું નામ સરનામું</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 10%;">સ્ટે.ડા.એન્ટ્રી  નંબર તથા તારીખ તથા કલાક</td>
+        <td style="border: 1px solid #000; padding: 5px; width: 15%;">અટક કર્યા તારીખ સમય તથા સ્થળ</td>
+    </tr>
+
+    <tr style="text-align: center; background-color: #f9f9f9;">
+        <td style="border: 1px solid #000;">૧</td>
+        <td style="border: 1px solid #000;">૨</td>
+        <td style="border: 1px solid #000;">૩</td>
+        <td style="border: 1px solid #000;">૪</td>
+        <td style="border: 1px solid #000;">૫</td>
+        <td style="border: 1px solid #000;">૬</td>
+        <td style="border: 1px solid #000;">૭</td>
+        <td style="border: 1px solid #000;">૮</td>
+        <td style="border: 1px solid #000;">૯</td>
+        <td style="border: 1px solid #000;">૧૦</td>
+        <td style="border: 1px solid #000;">૧૧</td>
+        <td style="border: 1px solid #000;">૧૨</td>
+    </tr>
+
+    <tr style="vertical-align: top;">
+        <td style="border: 1px solid #000; padding: 5px; text-align: center;">૧</td>
+        <td style="border: 1px solid #000; padding: 5px;">
+            ${getVariableValue('io_police_station')} <br>${getVariableValue('crime_no')}
+        </td>
+        <td style="border: 1px solid #000; padding: 5px;">
+            ${getVariableValue('acc_name')}
+        </td>
+        <td style="border: 1px solid #000; padding: 5px;">
+            રહે.${getVariableValue('perm_area')}
+        </td>
+        <td style="border: 1px solid #000; padding: 5px; text-align: center;">
+            [${getVariableValue('acc_caste')}]<br>${getVariableValue('occ_type')}
+        </td>
+        <td style="border: 1px solid #000; padding: 5px;">
+            ${getVariableValue('offence_section')}
+        </td>
+        <td style="border: 1px solid #000; padding: 5px;">
+            ${getVariableValue('mark_1')}.<br><br>ઉ.વ. &nbsp;&nbsp;&nbsp; ઊંચાઇ<br><br>${getVariableValue('acc_age')} [${getVariableValue('phy_height')}]
+        </td>
+        <td style="border: 1px solid #000; padding: 5px; text-align: center;">
+            [${getVariableValue('is_arrested')}]
+        </td>
+        <td style="border: 1px solid #000; padding: 5px; text-align: center;">
+            -
+        </td>
+        <td style="border: 1px solid #000; padding: 5px;">
+            ${getVariableValue('rel_name')},<br><br>${getVariableValue('rel_address')}
+        </td>
+        <td style="border: 1px solid #000; padding: 5px;">
+            સ્ટે.ડા.એ.નં-
+${getVariableValue('arrest_entry_no')}
+તા.${getVariableValue('arrest_date')} ના કલાક ${getVariableValue('arrest_time')} થી નોંધ કરેલ છે
+        </td>
+        <td style="border: 1px solid #000; padding: 5px; text-align: center;">
+            આજ રોજ તા. ${getVariableValue('arrest_date')} નાં ક. ${getVariableValue('arrest_time')}  વાગે ${getVariableValue('arrest_place')}  મુકામે અટક કરવામાં  આવેલ છે.
+        </td>
+    </tr>
+</table>
+<div style="text-align: right; margin-top: 50px;">
+            ${getVariableValue('io_name')}<br>
+            ${getVariableValue('io_police_station')} પોલીસ સ્ટેશન
+        </div>
+</div>
+`;
+
+            // Note: The page-break class and page-number div are for the next page
+            preview.innerHTML = documentHTML;
+        }
+
+        // Initialize with sample data if localStorage is empty
+        function initializeSampleData() {
+            // Check if any key exists
+            const testKey = 'acc_name';
+
+        }
+
+        // Event listeners
+        document.getElementById('refreshBtn').addEventListener('click', function () {
+            renderDocument();
+        });
+
+        document.getElementById('printBtn').addEventListener('click', function () {
+            window.print();
+        });
+
+        document.getElementById('undoBtn').addEventListener('click', function () {
+            editHistoryManager.undo();
+        });
+
+        document.getElementById('redoBtn').addEventListener('click', function () {
+            editHistoryManager.redo();
+        });
+
+        // Keyboard shortcuts for undo/redo
+        document.addEventListener('keydown', function (e) {
+            // Only trigger if modal is not open
+            if (editModalOverlay.classList.contains('show')) {
+                return;
+            }
+
+            // Ctrl+Z or Cmd+Z for undo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                editHistoryManager.undo();
+            }
+
+            // Ctrl+Y or Cmd+Y for redo
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'Z'))) {
+                e.preventDefault();
+                editHistoryManager.redo();
+            }
+        });
+
+        // Selection & Edit Functionality
+        const floatingEditBtn = document.createElement('button');
+        floatingEditBtn.className = 'floating-edit-btn';
+        floatingEditBtn.textContent = '✎ Edit';
+        document.body.appendChild(floatingEditBtn);
+
+        const editModalOverlay = document.createElement('div');
+        editModalOverlay.className = 'edit-modal-overlay';
+        editModalOverlay.innerHTML = `
+            <div class="edit-modal">
+                <h3>Edit Text</h3>
+                <textarea id="editModalTextarea" placeholder="Enter new text..."></textarea>
+                <div class="edit-modal-buttons">
+                    <button class="edit-modal-btn cancel" id="editModalCancel">Cancel</button>
+                    <button class="edit-modal-btn save" id="editModalSave">Save</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(editModalOverlay);
+
+        let currentSelection = null;
+        let currentOccurrenceIndex = 0;
+
+        function getCurrentSectionKey() {
+            const caseDataRaw = JSON.parse(localStorage.getItem('case_data_raw') || '{}');
+            return caseDataRaw.offence_section || 'GENERAL';
+        }
+
+       function getCaseEditsForSection() {
+            const sectionKey = getCurrentSectionKey();
+            const bySection = JSON.parse(localStorage.getItem('case_edits_by_section') || '{}');
+            if (bySection && Object.prototype.hasOwnProperty.call(bySection, sectionKey)) {
+                const raw = bySection[sectionKey];
+                // Always return as array
+                if (Array.isArray(raw)) return raw;
+                if (raw && typeof raw === 'object') {
+                    // Legacy object format → convert to array with occurrenceIndex 0
+                    return Object.entries(raw).map(([originalText, newText]) => ({
+                        originalText, newText: String(newText ?? ''), occurrenceIndex: 0
+                    }));
+                }
+                return [];
+            }
+            return [];
+        }
+
+        function setCaseEditsForSection(edits) {
+            const sectionKey = getCurrentSectionKey();
+            const bySection = JSON.parse(localStorage.getItem('case_edits_by_section') || '{}');
+            bySection[sectionKey] = edits; // edits is now always an array
+            localStorage.setItem('case_edits_by_section', JSON.stringify(bySection));
+        }
+
+        function getEditHistoryKey(baseKey) {
+            return `${baseKey}_${getCurrentSectionKey()}`;
+        }
+
+        // Edit History Manager
+        const editHistoryManager = {
+            history: [],
+            index: -1,
+            maxSize: 50,
+
+           addEdit(originalText, newText, occurrenceIndex = 0) {
+                // Remove any redo history if user makes new edit after undo
+                this.history = this.history.slice(0, this.index + 1);
+
+                // Add new edit
+                this.history.push({
+                    originalText: originalText,
+                    newText: newText,
+                    occurrenceIndex: occurrenceIndex,
+                    timestamp: Date.now()
+                });
+
+                // Limit history size
+                if (this.history.length > this.maxSize) {
+                    this.history.shift();
+                } else {
+                    this.index++;
+                }
+
+                // Save to localStorage
+                localStorage.setItem(getEditHistoryKey('editHistory'), JSON.stringify(this.history));
+                localStorage.setItem(getEditHistoryKey('editHistoryIndex'), JSON.stringify(this.index));
+
+                this.updateUI();
+            },
+
+            undo() {
+                if (this.index > 0) {
+                    this.index--;
+                    this.applyState();
+                }
+            },
+
+            redo() {
+                if (this.index < this.history.length - 1) {
+                    this.index++;
+                    this.applyState();
+                }
+            },
+
+            applyState() {
+                if (this.history.length === 0) return;
+
+                // Get edit at current index
+                const edit = this.history[this.index];
+
+                // Reverse the replacement (undo) or apply it (redo)
+                // We need to figure out which direction we're going
+                // Rebuild the document by replaying edits
+                this.rebuildDocument();
+
+                // Save to localStorage
+                localStorage.setItem(getEditHistoryKey('editHistoryIndex'), JSON.stringify(this.index));
+                this.updateUI();
+            },
+
+            rebuildDocument() {
+                const preview = document.getElementById('documentPreview');
+                if (!preview) return;
+
+                // Rebuild as array, keeping last edit per (originalText + occurrenceIndex) pair
+                const editsToApply = [];
+                const seen = new Map();
+                for (let i = 0; i <= this.index; i++) {
+                    const edit = this.history[i];
+                    const key = `${edit.originalText}__${edit.occurrenceIndex ?? 0}`;
+                    seen.set(key, {
+                        originalText: edit.originalText,
+                        newText: edit.newText,
+                        occurrenceIndex: edit.occurrenceIndex ?? 0
+                    });
+                }
+                seen.forEach(v => editsToApply.push(v));
+
+                // Update localStorage
+                setCaseEditsForSection(editsToApply);
+
+                // Re-render document to apply all edits from scratch
+                renderDocument();
+
+                // Notify parent
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'undoRedo',
+                        action: this.index < this.history.length - 1 ? 'undo' : 'redo'
+                    }, '*');
+                }
+            },
+
+            updateUI() {
+                const undoBtn = document.getElementById('undoBtn');
+                const redoBtn = document.getElementById('redoBtn');
+
+                if (undoBtn) {
+                    if (this.index > 0) {
+                        undoBtn.classList.remove('btn-disabled');
+                        undoBtn.disabled = false;
+                    } else {
+                        undoBtn.classList.add('btn-disabled');
+                        undoBtn.disabled = true;
+                    }
+                }
+
+                if (redoBtn) {
+                    if (this.index < this.history.length - 1) {
+                        redoBtn.classList.remove('btn-disabled');
+                        redoBtn.disabled = false;
+                    } else {
+                        redoBtn.classList.add('btn-disabled');
+                        redoBtn.disabled = true;
+                    }
+                }
+            },
+
+            loadFromStorage() {
+                const storedHistory = localStorage.getItem(getEditHistoryKey('editHistory'));
+                const storedIndex = localStorage.getItem(getEditHistoryKey('editHistoryIndex'));
+
+                if (storedHistory) {
+                    this.history = JSON.parse(storedHistory);
+                }
+                if (storedIndex) {
+                    this.index = JSON.parse(storedIndex);
+                }
+
+                this.updateUI();
+            },
+
+            clear() {
+                this.history = [];
+                this.index = -1;
+                localStorage.removeItem(getEditHistoryKey('editHistory'));
+                localStorage.removeItem(getEditHistoryKey('editHistoryIndex'));
+                this.updateUI();
+            }
+        };
+
+       // Compute which occurrence (0-indexed) the user selected inside #documentPreview
+        function computeOccurrenceIndex(selection, selectedText) {
+            const preview = document.getElementById('documentPreview');
+            if (!preview || !selectedText) return 0;
+            const range = selection.getRangeAt(0);
+            const selNode = range.startContainer;
+            const selOffset = range.startOffset;
+
+            const walker = document.createTreeWalker(preview, NodeFilter.SHOW_TEXT, null, false);
+            let count = 0;
+            let node;
+            while ((node = walker.nextNode())) {
+                const txt = node.nodeValue || '';
+                let idx = 0;
+                while ((idx = txt.indexOf(selectedText, idx)) !== -1) {
+                    if (node === selNode) {
+                        if (idx < selOffset) {
+                            count++;
+                        } else if (idx === selOffset) {
+                            return count; // this is the exact occurrence selected
+                        }
+                    } else {
+                        const cmp = node.compareDocumentPosition(selNode);
+                        if (cmp & Node.DOCUMENT_POSITION_FOLLOWING) {
+                            count++; // this node comes before the selected node
+                        }
+                    }
+                    idx += selectedText.length;
+                }
+            }
+            return count;
+        }
+
+        document.addEventListener('mouseup', function () {
+            const selection = window.getSelection();
+            const selectedText = selection.toString().trim();
+
+            if (selectedText.length > 0) {
+                currentSelection = selectedText;
+                currentOccurrenceIndex = computeOccurrenceIndex(selection, selectedText); // TRACK POSITION
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+
+                floatingEditBtn.style.display = 'block';
+
+                // Clamp button position to viewport bounds
+                const maxX = window.innerWidth - 100;
+                const maxY = window.innerHeight - 50;
+
+                floatingEditBtn.style.left = Math.min(Math.max(0, rect.left), maxX) + 'px';
+                floatingEditBtn.style.top = Math.min(Math.max(0, rect.bottom + 5), maxY) + 'px';
+            } else {
+                floatingEditBtn.style.display = 'none';
+            }
+        });
+
+        floatingEditBtn.addEventListener('click', function () {
+            if (currentSelection) {
+                document.getElementById('editModalTextarea').value = currentSelection;
+                editModalOverlay.classList.add('show');
+                document.getElementById('editModalTextarea').focus();
+                document.getElementById('editModalTextarea').select();
+            }
+        });
+
+        document.getElementById('editModalCancel').addEventListener('click', function () {
+            editModalOverlay.classList.remove('show');
+            currentSelection = null;
+            floatingEditBtn.style.display = 'none';
+        });
+
+        document.getElementById('editModalSave').addEventListener('click', function () {
+            const newText = document.getElementById('editModalTextarea').value.trim();
+            if (newText.length === 0 || newText === currentSelection) {
+                editModalOverlay.classList.remove('show');
+                currentSelection = null;
+                floatingEditBtn.style.display = 'none';
+                return;
+            }
+
+            // Store edit as array entry with occurrenceIndex
+            const caseEdits = getCaseEditsForSection(); // returns array
+            const existingIdx = caseEdits.findIndex(
+                e => e.originalText === currentSelection && e.occurrenceIndex === currentOccurrenceIndex
+            );
+            if (existingIdx >= 0) {
+                caseEdits[existingIdx].newText = newText;
+            } else {
+                caseEdits.push({ originalText: currentSelection, newText, occurrenceIndex: currentOccurrenceIndex });
+            }
+            setCaseEditsForSection(caseEdits);
+
+            // Add to history
+            editHistoryManager.addEdit(currentSelection, newText, currentOccurrenceIndex);
+
+            // Apply replacement to preview (only the specific occurrence)
+            applyTextReplacementToPreview(currentSelection, newText, currentOccurrenceIndex);
+
+            // Notify parent window
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'textEdit',
+                    originalText: currentSelection,
+                    newText: newText,
+                    occurrenceIndex: currentOccurrenceIndex
+                }, '*');
+            }
+
+            editModalOverlay.classList.remove('show');
+            currentSelection = null;
+            floatingEditBtn.style.display = 'none';
+        });
+
+        // Close modal on overlay click
+        editModalOverlay.addEventListener('click', function (e) {
+            if (e.target === editModalOverlay) {
+                editModalOverlay.classList.remove('show');
+                currentSelection = null;
+                floatingEditBtn.style.display = 'none';
+            }
+        });
+
+      function applyTextReplacementToPreview(oldText, newText, targetOccurrence = 0) {
+            const preview = document.getElementById('documentPreview');
+            if (!preview || !oldText) return;
+
+            const normalizedTarget = oldText.replace(/\s+/g, ' ').trim();
+            if (!normalizedTarget) return;
+
+            const blocks = preview.querySelectorAll('p, div, td, th');
+            let globalMatchCount = 0; // counts occurrences across all blocks
+            let isReplaced = false;
+
+            function buildVirtualMap(block) {
+                const walker = document.createTreeWalker(
+                    block,
+                    NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+                    {
+                        acceptNode(node) {
+                            if (node.nodeType === Node.TEXT_NODE) return NodeFilter.FILTER_ACCEPT;
+                            if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
+                                return NodeFilter.FILTER_ACCEPT;
+                            }
+                            return NodeFilter.FILTER_SKIP;
+                        }
+                    },
+                    false
+                );
+
+                const textNodes = [];
+                const coordMap = [];
+                let virtualText = '';
+                let lastWasSpace = false;
+                let node;
+
+                while (node = walker.nextNode()) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        const nodeValue = node.nodeValue || '';
+                        if (nodeValue.length === 0) continue;
+                        textNodes.push(node);
+                        for (let i = 0; i < nodeValue.length; i++) {
+                            const ch = nodeValue[i];
+                            const isSpace = /\s/.test(ch);
+                            if (isSpace) {
+                                if (lastWasSpace) continue;
+                                virtualText += ' ';
+                                coordMap.push({ node, offset: i });
+                                lastWasSpace = true;
+                                continue;
+                            }
+                            virtualText += ch;
+                            coordMap.push({ node, offset: i });
+                            lastWasSpace = false;
+                        }
+                    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'BR') {
+                        if (lastWasSpace) continue;
+                        virtualText += ' ';
+                        coordMap.push({ node: null, offset: null });
+                        lastWasSpace = true;
+                    }
+                }
+
+                return { textNodes, coordMap, virtualText };
+            }
+
+            function resolveCoord(coordMap, index, direction) {
+                let i = index;
+                while (i >= 0 && i < coordMap.length) {
+                    if (coordMap[i] && coordMap[i].node) return coordMap[i];
+                    i += direction;
+                }
+                return null;
+            }
+
+            for (const block of blocks) {
+                if (isReplaced) break;
+
+                const { textNodes, coordMap, virtualText } = buildVirtualMap(block);
+                if (!virtualText) continue;
+
+                const normalizedText = virtualText.replace(/\s+/g, ' ').trim();
+                if (!normalizedText) continue;
+
+                // Count ALL occurrences in this block to know if target is here
+                let searchFrom = 0;
+                while (true) {
+                    const startIndex = normalizedText.indexOf(normalizedTarget, searchFrom);
+                    if (startIndex === -1) break;
+
+                    if (globalMatchCount === targetOccurrence) {
+                        // This is the target occurrence — do the replacement
+                        const endIndex = startIndex + normalizedTarget.length - 1;
+                        const startCoord = resolveCoord(coordMap, startIndex, 1);
+                        const endCoord = resolveCoord(coordMap, endIndex, -1);
+                        if (!startCoord || !endCoord) break;
+
+                        const startNode = startCoord.node;
+                        const endNode = endCoord.node;
+                        const startOffset = startCoord.offset;
+                        const endOffset = endCoord.offset;
+
+                        if (startNode === endNode) {
+                            const original = startNode.nodeValue || '';
+                            const before = original.slice(0, startOffset);
+                            const after = original.slice(endOffset + 1);
+                            startNode.nodeValue = `${before}${newText}${after}`;
+                        } else {
+                            const startOriginal = startNode.nodeValue || '';
+                            const endOriginal = endNode.nodeValue || '';
+                            const before = startOriginal.slice(0, startOffset);
+                            const after = endOriginal.slice(endOffset + 1);
+                            startNode.nodeValue = `${before}${newText}`;
+
+                            const startIndexNode = textNodes.indexOf(startNode);
+                            const endIndexNode = textNodes.indexOf(endNode);
+                            if (startIndexNode !== -1 && endIndexNode !== -1) {
+                                for (let i = startIndexNode + 1; i < endIndexNode; i++) {
+                                    textNodes[i].nodeValue = '';
+                                }
+                            }
+                            endNode.nodeValue = after;
+                        }
+
+                        isReplaced = true;
+                        break;
+                    }
+
+                    globalMatchCount++;
+                    searchFrom = startIndex + normalizedTarget.length;
+                }
+            }
+        }
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeSampleData();
+            renderDocument();
+
+            // Load edit history from localStorage
+            editHistoryManager.loadFromStorage();
+
+            // Listen for storage changes ONLY from other tabs/windows
+            // Do NOT re-render for changes made in this same window
+            window.addEventListener('storage', function (e) {
+                if (e.key === 'case_data' && e.storageArea === localStorage) {
+                    // Only re-render if change came from external source (another tab)
+                    renderDocument();
+                }
+            });
+        });
+
+        // Apply text edits from localStorage to preview on render
+     // Apply text edits from localStorage to preview on render
+        function applyStoredTextEdits() {
+            const caseEdits = getCaseEditsForSection(); // now an array
+            // Sort descending by occurrenceIndex so later occurrences are replaced first,
+            // preventing earlier replacements from shifting positions of later ones
+            const sorted = [...caseEdits].sort((a, b) => (b.occurrenceIndex ?? 0) - (a.occurrenceIndex ?? 0));
+            sorted.forEach(({ originalText, newText, occurrenceIndex }) => {
+                applyTextReplacementToPreview(originalText, newText, occurrenceIndex ?? 0);
+            });
+        }
+
+        // Store original renderDocument and wrap it
+        const originalRenderDocument = renderDocument;
+        renderDocument = function () {
+            originalRenderDocument.call(this);
+            applyStoredTextEdits();
+        }
+    </script>
+</body>
+
+</html>
